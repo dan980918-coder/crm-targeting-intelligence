@@ -181,8 +181,39 @@ search_query)에서 동시에 상위 이상치로 반복 등장 — 봇/크롤�
 `RIGHT_CENSOR_DAYS=14`. 결과: `reports/phase1_observation_period.md`,
 `reports/phase1_observation_period.csv`.
 
-**상태**: 잠정 결정 — 이 창 길이는 "검열 문제 존재 확인용"일 뿐 공식 기준이
-아님. Phase 5~6에서 실제 레이블 설계 시 재검토 필요.
+**상태**: ~~잠정 결정~~ → **결정 완료 (2026-08-05)**. Phase 5~6에서의 실제
+처리 방침은 아래 항목("우측 검열 고객 처리 방침")에서 확정됨. 이 항목의
+7일/14일 창은 "검열 문제 존재 확인용" 진단 지표로서의 역할로 목적을
+다했고, 실제 모델링 설계는 스냅샷 구조로 별도 해결됨.
+
+---
+
+## 2026-08-05 (Phase 1→Phase 2 전환) — 우측 검열 고객 처리 방침 [결정 완료]
+
+**이슈**: 위 8.10 항목에서 진단한 우측 검열 고객(구매자 기준 138,041명,
+15.18%)을 Phase 5~6 모델링에서 실제로 어떻게 처리할지. `reports/phase1_recommendation.md`
+에 Phase 5 착수 전 반드시 해결해야 할 blocker로 명시하고 사용자에게 확인받음.
+
+**검토한 선택지** (상세는 `docs/methodology.md` 2026-08-05 "우측 검열 고객
+처리 방침" 항목 참고)
+1. 우측 검열 대상 고객을 학습/평가에서 개별적으로 제외
+2. `snapshot_date`를 관측 종료일 − label window(14일) 이전으로만 선택해
+   스냅샷 설계 자체에서 검열을 원천 차단
+3. 생존분석(survival analysis)으로 검열을 명시적으로 모델링
+
+**결정**: **2번 채택** + 안전장치로 1번의 "검열 여부 체크"를 CLAUDE.md 31번
+데이터 테스트(Snapshot Feature·Label 분리 검증)에 포함.
+
+**근거 및 상세**: `docs/methodology.md` 2026-08-05 항목에 전문 기록. 요약 —
+`mart_customer_snapshot`의 Feature/Label Window 구조(CLAUDE.md 12번)를 그대로
+활용해 `snapshot_date ≤ 2022-11-24`(=2022-12-08 − 14일)로 제한하면, 개별
+고객 단위 검열 판정 로직 없이 구조적으로 문제가 해소됨. 안전장치로
+`snapshot_date + 14일 ≤ MAX(관측 timestamp)`를 검증하는 pytest를
+`sql/tests/`와 `tests/data_quality/`에 추가하기로 함.
+
+**상태**: **결정 완료.** Phase 2 `mart_customer_snapshot` 설계 및 Phase 5
+모델링 시 이 방침을 그대로 적용한다. 재검토가 필요해지면(예: label window
+길이를 14일이 아닌 다른 값으로 바꾸는 경우) 이 항목을 다시 연다.
 
 ---
 
