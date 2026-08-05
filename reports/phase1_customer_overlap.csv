@@ -1,0 +1,13 @@
+metric,value
+unique_clients_product_buy,909210
+unique_clients_add_to_cart,2333463
+unique_clients_remove_from_cart,694391
+unique_clients_page_visit,21993998
+unique_clients_search_query,1629447
+total_unique_clients_union,22298361
+intersect_buy_and_cart,581678
+intersect_buy_and_search,319926
+intersect_buy_and_pagevisit,640340
+intersect_cart_and_remove,667966
+clients_with_all_5_events,194997
+clients_with_only_1_event_type,19090856
