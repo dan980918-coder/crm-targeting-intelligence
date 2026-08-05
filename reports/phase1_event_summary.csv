@@ -1,0 +1,7 @@
+file,file_size_bytes,file_size_human,row_count,col_count,columns,duplicate_full_rows,pk_candidate,pk_candidate_distinct_combo,pk_candidate_is_unique
+product_buy.parquet,31512514,30.05 MB,2318502,3,"[""client_id"", ""timestamp"", ""sku""]",364491,"[""client_id"", ""timestamp"", ""sku""]",1937599,False
+add_to_cart.parquet,105425078,100.54 MB,7541117,3,"[""client_id"", ""timestamp"", ""sku""]",121309,"[""client_id"", ""timestamp"", ""sku""]",7379624,False
+remove_from_cart.parquet,36530822,34.84 MB,2688894,3,"[""client_id"", ""timestamp"", ""sku""]",119656,"[""client_id"", ""timestamp"", ""sku""]",2535306,False
+page_visit.parquet,2010901793,1.87 GB,199451980,3,"[""client_id"", ""timestamp"", ""url""]",17320847,"[""client_id"", ""timestamp"", ""url""]",178752573,False
+search_query.parquet,352048335,335.74 MB,13223769,3,"[""client_id"", ""timestamp"", ""query""]",612891,"[""client_id"", ""timestamp""]",12436634,False
+product_properties.parquet,67363395,64.24 MB,1534050,4,"[""sku"", ""category"", ""price"", ""name""]",0,"[""sku""]",1534050,True
