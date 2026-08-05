@@ -99,3 +99,82 @@ Phase 1 8.9(페이지 방문과 검색 검사)에서 `page_visit.url`이 공식 
 1번(프로젝트 목적)이 이미 상품 추천이 아닌 고객 라이프사이클/CRM 타기팅으로
 설계된 것과 정합적이다. 이후 Phase 2~9에서 "상품 추천"류 기능을 임의로
 추가하지 않는다.
+
+---
+
+## 2026-08-05 — 프로젝트 주제 확정(A안) 및 우측 검열(right-censoring) 고객 처리 방침
+
+### 프로젝트 주제 확정
+
+`reports/phase1_recommendation.md`에서 제안한 3개 주제(A. 구매 비활성 위험
+예측+CRM 타기팅, B. 장바구니 이탈 특화, C. 라이프사이클 세그먼트 중심) 중
+사용자가 **A안(구매 비활성 위험 고객 식별 + CRM 타기팅)** 을 최종 확정했다.
+CLAUDE.md 원 설계(Phase 2~10)와 1:1로 대응하는 주제로, 이후 모든 Phase는
+A안을 기준으로 진행한다.
+
+### 배경 — 우측 검열 문제
+
+Phase 1 8.10에서 확인한 대로, 관측 종료(2022-12-08) 14일 이내에 마지막
+구매가 있었던 고객은 138,041명(전체 구매자 909,210명의 15.18%)이다. 이
+고객들은 "그 이후 14일간 구매가 없었다"는 사실이 실제 비활성인지, 아니면
+데이터가 거기서 끊긴 것뿐인지 구분할 수 없다(`reports/phase1_observation_period.md`,
+`docs/limitations.md`). 이 blocker를 해결하지 않고는 Phase 5~6(구매 비활성
+모델링)에 착수할 수 없다는 점을 `reports/phase1_recommendation.md`에 명시하고
+사용자에게 후보 3안(제외/스냅샷 설계로 원천 차단/생존분석)을 장단점과 함께
+제시했다.
+
+### 결정 내용
+
+**스냅샷 설계로 검열 문제를 원천 차단한다 (후보 2번 채택).**
+
+CLAUDE.md 12번(`mart_customer_snapshot`의 Feature Window/Label Window 구조)과
+21번(시간순 데이터 분할, 미래 정보 누수 방지 원칙)을 그대로 활용해:
+
+- `snapshot_date`는 반드시 **관측 종료일(2022-12-08)로부터 label window
+  길이(예: 14일) 이상 이전**으로만 선택한다. 즉 14일 label window를 쓴다면
+  `snapshot_date ≤ 2022-11-24`.
+- 이 조건을 만족하는 한, 어떤 `snapshot_date`를 선택하든 그 라벨 계산 구간
+  (`snapshot_date` ~ `snapshot_date + 14일`)은 항상 완전히 관측된 데이터
+  범위 안에 들어가므로, 개별 고객 단위로 "이 고객이 검열 대상인지" 판정하는
+  로직이 별도로 필요 없다. 관측 종료 근처에 처음 등장한 고객은 애초에 그
+  시점 이전 `snapshot_date`에서는 "과거 구매 이력이 있는 고객" 모집단에
+  자연스럽게 포함되지 않거나, 포함되더라도 그 라벨은 항상 완전히 관측된
+  구간에서 계산된다.
+- 여러 `snapshot_date`(예: 주 단위 롤링)를 관측 기간 내에서 뽑아 학습
+  표본을 구성한다.
+
+**안전장치**: CLAUDE.md 31번 "Snapshot Feature·Label 분리" 테스트 항목에
+다음 데이터 테스트를 추가한다.
+
+> `mart_customer_snapshot`의 모든 행에 대해
+> `snapshot_date + INTERVAL '{label_window_days} days' <= 전체 관측 데이터의 MAX(timestamp)`
+> 를 만족하는지 검증하는 pytest. 위반하는 행이 하나라도 있으면 실패 —
+> 즉 "라벨 계산 구간이 실제 관측 범위를 벗어나는 스냅샷"이 마트에 존재하지
+> 않음을 보장한다.
+
+이 테스트는 Phase 2(SQL 데이터마트 `sql/tests/`)와 Phase 5(모델링 전 `tests/data_quality/`)
+양쪽에 구현한다.
+
+### 근거
+
+- 이미 설계된 아키텍처(Feature/Label Window)를 그대로 재사용해 추가 복잡도가
+  거의 없다 — 고객 단위로 "검열 여부" 플래그를 별도로 관리하지 않아도 된다.
+- CLAUDE.md 20~21번의 "단순 기준선 우선", "시간순 분할, 미래 누수 방지"
+  원칙과 완전히 정합적이다.
+- 생존분석(후보 3번)은 통계적으로 더 엄밀하지만 이 프로젝트 스코프 대비
+  구현·해석 비용이 크다고 판단해 채택하지 않았다(과설계 방지, CLAUDE.md
+  "처음부터 복잡한 딥러닝/과설계 모델 지양" 정신과 부합).
+
+### 트레이드오프
+
+- 관측 기간 167일 중 마지막 14일(2022-11-25~2022-12-08)은 `snapshot_date`
+  로 직접 사용할 수 없다 — 다만 이 구간의 이벤트 데이터 자체는 다른
+  `snapshot_date`들의 label window로는 계속 활용된다. 실질적으로 사용 가능한
+  `snapshot_date` 범위는 약 153일로 소폭 줄어든다(원본 이벤트 데이터
+  손실은 없음).
+
+### 관련 문서
+
+- `reports/phase1_recommendation.md` (blocker 원문)
+- `reports/phase1_observation_period.md`, `docs/limitations.md` (우측 검열 실측치)
+- `docs/decisions_pending_review.md` (8.10 항목 — 이 결정으로 해결됨)
