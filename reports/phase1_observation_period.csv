@@ -1,0 +1,23 @@
+metric,value
+window_min_ts,2022-06-23 00:10:00
+window_max_ts,2022-12-08 00:09:59
+n_clients,22298361
+obs_days_min,0
+obs_days_mean,15.4789
+obs_days_median,0
+obs_days_p90,63
+obs_days_p95,103
+obs_days_max,168
+obs_days_zero_count,14789862
+obs_days_zero_pct,66.3271
+left_censor_window_days,7
+left_censor_candidates,1235721
+left_censor_pct,5.5418
+right_censor_window_days,14
+right_censor_candidates,1822194
+right_censor_pct,8.1719
+n_buyers,909210
+buyers_first_purchase_in_left_window,40428
+buyers_first_purchase_in_left_window_pct,4.4465
+buyers_last_purchase_in_right_window,138041
+buyers_last_purchase_in_right_window_pct,15.1825
