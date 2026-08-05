@@ -1,0 +1,28 @@
+section,data
+A_client_event_count_distribution,
+event_type,min_events_per_client,mean_events_per_client,p50,p90,p95,p99,p999,max_events_per_client,top5_client_id_count
+product_buy,1,2.55,2,5,7,18,51,644,"[(OUTLIER_01, 644), (OUTLIER_02, 536), (OUTLIER_03, 485), (OUTLIER_04, 404), (OUTLIER_05, 383)]"
+add_to_cart,1,3.2317,1,6,10,31,111,2200,"[(OUTLIER_06, 2200), (OUTLIER_07, 1993), (OUTLIER_08, 1491), (OUTLIER_09, 1227), (OUTLIER_10, 1220)]"
+remove_from_cart,1,3.8723,2,8,13,35,124,1511,"[(OUTLIER_07, 1511), (OUTLIER_08, 1351), (OUTLIER_06, 1032), (OUTLIER_11, 858), (OUTLIER_12, 823)]"
+page_visit,1,9.0685,2,17,33,112,463,55561,"[(OUTLIER_13, 55561), (OUTLIER_14, 37073), (OUTLIER_15, 29566), (OUTLIER_16, 28306), (OUTLIER_17, 25860)]"
+search_query,1,8.1155,3,17,29,79,264,4558,"[(OUTLIER_07, 4558), (OUTLIER_18, 3245), (OUTLIER_19, 2916), (OUTLIER_20, 2824), (OUTLIER_21, 2353)]"
+
+B_burst_events,
+event_type,partition_key,burst_event_count,total_rows,burst_pct
+product_buy,"client_id, sku",381152,2318502,16.43958
+add_to_cart,"client_id, sku",355702,7541117,4.716834
+remove_from_cart,"client_id, sku",277009,2688894,10.301968
+page_visit,"client_id, url",33118828,199451980,16.604913
+search_query,client_id,1722800,13223769,13.028056
+
+C_observation_summary,
+first_ts_min,first_ts_max,last_ts_min,last_ts_max,median_active_days,mean_active_days,max_active_days,n_clients
+2022-06-23 00:10:00,2022-12-08 00:09:59,2022-06-23 00:10:05,2022-12-08 00:09:59,1,2.1031,168,22298361
+
+D_daily_volume,
+event_type,n_observed_days,mean_daily_count,std_daily_count,max_day,max_day_count,min_day,min_day_count
+product_buy,169,13718.95,4272.06,2022-11-20 00:00:00,24269,2022-12-08 00:00:00,24
+add_to_cart,169,44621.99,14015.78,2022-12-04 00:00:00,93388,2022-12-08 00:00:00,188
+remove_from_cart,169,15910.62,6605.94,2022-12-04 00:00:00,38774,2022-12-08 00:00:00,97
+page_visit,169,1180189.23,258536.66,2022-12-04 00:00:00,1973489,2022-12-08 00:00:00,3124
+search_query,169,78247.15,19291.95,2022-12-04 00:00:00,144846,2022-12-08 00:00:00,285
