@@ -1,0 +1,27 @@
+# Raw / external source data (CC BY-NC 4.0, not for redistribution)
+data/raw/
+data/external/
+
+# Databases
+*.duckdb
+*.db
+
+# Environment / secrets
+.env
+.env.*
+
+# Models / artifacts
+models/
+artifacts/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
