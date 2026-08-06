@@ -163,4 +163,63 @@ lazy 참조한다 (materialize하지 않음 — Phase 1 원칙: 전체를 메모
 
 ## Mart Layer
 
-(아직 미구현)
+CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·세그먼트·이탈
+기준처럼 아직 확정되지 않은 값에 의존하지 않는 **5개만 우선 구축**했다.
+나머지 6개(`mart_customer_lifecycle`, `mart_customer_segment`,
+`mart_customer_snapshot`, `mart_churn_target`, `mart_purchase_propensity`,
+`mart_targeting_simulation`)는 Phase 3(퍼널·코호트·리텐션 실제 분포 확인)
+이후 해당 기준을 사용자와 함께 정할 때까지 대기한다.
+
+### mart_customer_360
+
+- **목적**: 고객별 전체 활동 요약 (라이프사이클/세그먼트 컬럼은 아직 없음 — Phase 4에서 추가 예정)
+- **Grain**: 1행 = 1 고객 (전체 22,298,361행)
+- **Primary Key**: client_id
+- **컬럼**: first/last_event_ts, observation_days, n_active_days, is_left/right_censor_candidate, n_page_visit, n_search_query, n_add_to_cart, n_remove_from_cart, n_purchases, n_purchase_days, first/last_purchase_ts, avg_purchase_gap_days, is_buyer, has_cart_activity, is_repeat_capable
+- **생성 SQL**: `sql/marts/mart_customer_360.sql`
+- **검증**: is_buyer 909,210명 / has_cart_activity 2,359,888명 / is_repeat_capable 210,633명 — 전부 Phase 1 수치와 정확히 일치 확인
+- **입력**: int_customer_observation_period, int_customer_purchase_gap, int_customer_cart_behavior, stg_page_visit, stg_search_query
+
+### mart_customer_daily
+
+- **목적**: int_customer_daily_activity를 마트로 승격 (현재는 동일 내용)
+- **Grain**: 1행 = 1 고객 × 1 활동일 (46,896,180행) / **PK**: (client_id, activity_date)
+- **생성 SQL**: `sql/marts/mart_customer_daily.sql`
+
+### mart_customer_weekly
+
+- **목적**: 주 단위 활동 롤업
+- **Grain**: 1행 = 1 고객 × 1 활동주(week_start, 월요일 기준, 38,347,783행) / **PK**: (client_id, week_start)
+- **컬럼**: n_page_visit, n_search_query, n_add_to_cart, n_remove_from_cart, n_product_buy, n_events_total, n_active_days_in_week
+- **생성 SQL**: `sql/marts/mart_customer_weekly.sql`
+- **입력**: int_customer_daily_activity
+
+### mart_customer_cohort
+
+- **목적**: "첫 관측 구매 주차" 코호트 배정 (CLAUDE.md 14번 고정 정의)
+- **Grain**: 1행 = 1 구매 고객 (909,210행) / **PK**: client_id
+- **컬럼**: first_purchase_ts, cohort_week, n_purchases, n_purchase_days, avg_purchase_gap_days
+- **생성 SQL**: `sql/marts/mart_customer_cohort.sql`
+
+### mart_customer_retention
+
+- **목적**: 코호트별 7/14/28일 재구매율 (CLAUDE.md 14번 고정 지표)
+- **Grain**: 1행 = 1 cohort_week (25개 주차) / **PK**: cohort_week
+- **컬럼**: n_customers_in_cohort, repurchase_7d/14d/28d_rate, avg_purchase_days, avg_category_diversity, is_7d/14d/28d_window_censored
+- **중요**: 우측 검열로 인해 마지막 4개 코호트(2022-11-14 이후)는 하나 이상의
+  플래그가 TRUE — 해당 코호트의 재구매율은 과소추정된 값이므로 Phase 3
+  해석·시각화 시 반드시 구분 표시할 것 (`docs/decisions_pending_review.md`
+  2026-08-05 "코호트별 재구매율의 우측 검열 처리" 항목 참고)
+- **생성 SQL**: `sql/marts/mart_customer_retention.sql`
+- **입력**: mart_customer_cohort, int_customer_purchase_history, int_customer_category_behavior, int_customer_observation_period
+
+### 대기 중인 mart 테이블 (미착수)
+
+| 테이블 | 대기 사유 |
+|---|---|
+| mart_customer_lifecycle | 라이프사이클 8개 상태 기준 미확정 (CLAUDE.md 16번) |
+| mart_customer_segment | 세그먼트 8개 규칙 미확정 + lifecycle 의존 (CLAUDE.md 17번) |
+| mart_customer_snapshot | Feature/Label Window 정확한 길이(14일 vs 28일) 미확정 |
+| mart_churn_target | 이탈/비활성 기준(14일 vs 28일) 미확정 (CLAUDE.md 35번 규칙 3) |
+| mart_purchase_propensity | 향후 구매 판단 기간 미확정 (churn_target과 동일 의존성) |
+| mart_targeting_simulation | 위 5개 전부에 의존하는 최하류 테이블 |
