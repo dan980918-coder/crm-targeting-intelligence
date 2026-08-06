@@ -1,0 +1,25 @@
+# 프로젝트 경로 설정
+# CLAUDE.md 32번 디렉터리 구조와 정합. data/raw, database 파일은 .gitignore 대상.
+
+raw_data_dir: data/raw/synerise_dataset
+external_data_dir: data/external
+interim_data_dir: data/interim
+processed_data_dir: data/processed
+dashboard_data_dir: data/dashboard
+
+database_path: data/processed/crm.duckdb
+
+sql_staging_dir: sql/staging
+sql_intermediate_dir: sql/intermediate
+sql_marts_dir: sql/marts
+sql_features_dir: sql/features
+sql_labels_dir: sql/labels
+sql_tests_dir: sql/tests
+
+raw_files:
+  product_buy: product_buy.parquet
+  add_to_cart: add_to_cart.parquet
+  remove_from_cart: remove_from_cart.parquet
+  page_visit: page_visit.parquet
+  search_query: search_query.parquet
+  product_properties: product_properties.parquet
