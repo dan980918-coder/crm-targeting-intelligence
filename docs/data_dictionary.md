@@ -213,13 +213,40 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 - **생성 SQL**: `sql/marts/mart_customer_retention.sql`
 - **입력**: mart_customer_cohort, int_customer_purchase_history, int_customer_category_behavior, int_customer_observation_period
 
-### 대기 중인 mart 테이블 (미착수)
+### mart_customer_lifecycle
+
+- **목적**: 관측 종료 시점(2022-12-08) 기준 고객 라이프사이클 상태 분류
+- **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
+- **컬럼**: is_buyer, n_purchase_days, days_since_last_purchase, gap_before_last_purchase, lifecycle_stage
+- **lifecycle_stage 값**(8개, CLAUDE.md 16번 후보 9개 중 반복구매/활성구매를 하나로 통합):
+  `탐색_고객`, `장바구니_고객`, `첫_관측_구매_고객`, `활성_구매_고객`, `구매_감소_고객`, `구매_비활성_위험_고객`, `비활성_고객`, `복귀_고객`
+- **임계값 근거** (데이터 기반, 자세한 내용은 `docs/methodology.md` 참고):
+  14일 = 구매간격 중앙값(9.48일) × 1.5, 28일 = 중앙값 × 3, 60일 ≈ 구매간격 p90(68.05일).
+  CLAUDE.md 18번이 "비교 대상"으로 제시한 14일/28일과 정확히 일치.
+- **분포** (2026-08-05 빌드 기준):
+
+  | 상태 | 고객 수 | 비율 |
+  |---|---:|---:|
+  | 탐색_고객 | 19,616,700 | 87.97% |
+  | 장바구니_고객 | 1,772,451 | 7.95% |
+  | 비활성_고객 | 489,174 | 2.19% |
+  | 구매_비활성_위험_고객 | 179,620 | 0.81% |
+  | 구매_감소_고객 | 102,363 | 0.46% |
+  | 첫_관측_구매_고객 | 82,368 | 0.37% |
+  | 활성_구매_고객 | 31,553 | 0.14% |
+  | 복귀_고객 | 24,132 | 0.11% |
+
+- **생성 SQL**: `sql/marts/mart_customer_lifecycle.sql`
+- **품질 테스트**: `tests/data_quality/test_lifecycle.py` — 미분류(기타) 0건, 구매 상태 합계=909,210, 비구매 상태 합계=21,389,151, 음수 recency 0건
+- **입력**: mart_customer_360, int_customer_observation_period, int_customer_purchase_history
+- **출력**: mart_customer_segment, Phase 7 대시보드 Lifecycle 페이지
+
+### 대기 중인 mart 테이블
 
 | 테이블 | 대기 사유 |
 |---|---|
-| mart_customer_lifecycle | 라이프사이클 8개 상태 기준 미확정 (CLAUDE.md 16번) |
-| mart_customer_segment | 세그먼트 8개 규칙 미확정 + lifecycle 의존 (CLAUDE.md 17번) |
-| mart_customer_snapshot | Feature/Label Window 정확한 길이(14일 vs 28일) 미확정 |
-| mart_churn_target | 이탈/비활성 기준(14일 vs 28일) 미확정 (CLAUDE.md 35번 규칙 3) |
-| mart_purchase_propensity | 향후 구매 판단 기간 미확정 (churn_target과 동일 의존성) |
-| mart_targeting_simulation | 위 5개 전부에 의존하는 최하류 테이블 |
+| mart_customer_segment | mart_customer_lifecycle 기반으로 다음 단계에서 구축 예정 |
+| mart_customer_snapshot | Feature/Label Window 구조는 결정됨(`docs/methodology.md`) — 다음 단계에서 구축 |
+| mart_churn_target | mart_customer_snapshot 이후 구축 (14/28일 기준은 이미 위 lifecycle 임계값과 동일 근거로 확정됨) |
+| mart_purchase_propensity | mart_churn_target과 함께 구축 예정 |
+| mart_targeting_simulation | Phase 6 모델 결과가 있어야 의미 있는 시뮬레이션 가능 — 모델링 단계까지 대기 |
