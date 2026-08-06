@@ -20,19 +20,28 @@ def main() -> None:
     db_path = Path(paths["database_path"])
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    staging_dir = Path(paths["sql_staging_dir"])
-    sql_files = sorted(staging_dir.glob("*.sql"))
-
     con = duckdb.connect(str(db_path))
-    for sql_file in sql_files:
-        print(f"실행: {sql_file}")
-        con.sql(sql_file.read_text())
 
-    print("\n생성된 staging 뷰:")
-    views = con.sql(
-        "SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'stg_%' ORDER BY table_name"
+    layer_dirs = [
+        ("staging", Path(paths["sql_staging_dir"])),
+        ("intermediate", Path(paths["sql_intermediate_dir"])),
+    ]
+
+    for layer_name, layer_dir in layer_dirs:
+        sql_files = sorted(layer_dir.glob("*.sql"))
+        if not sql_files:
+            continue
+        print(f"\n=== {layer_name} 레이어 ===")
+        for sql_file in sql_files:
+            print(f"실행: {sql_file}")
+            con.sql(sql_file.read_text())
+
+    print("\n생성된 테이블/뷰:")
+    objects = con.sql(
+        "SELECT table_name FROM information_schema.tables "
+        "WHERE table_name LIKE 'stg_%' OR table_name LIKE 'int_%' ORDER BY table_name"
     ).fetchall()
-    for (name,) in views:
+    for (name,) in objects:
         cnt = con.sql(f"SELECT COUNT(*) FROM {name}").fetchone()[0]
         print(f"  - {name}: {cnt:,} rows")
 
