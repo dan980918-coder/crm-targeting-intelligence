@@ -9,6 +9,7 @@ data/external/
 # Environment / secrets
 .env
 .env.*
+!.env.example
 
 # Trained model artifacts (root-level only — src/models/, reports/model_cards/ are source/docs, not artifacts)
 /models/

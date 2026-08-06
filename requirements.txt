@@ -8,3 +8,5 @@ lightgbm>=4.6,<5
 streamlit>=1.45,<2
 plotly>=5.24,<6
 pydantic>=2.10,<3
+anthropic>=0.120,<1
+# openai>=1.0,<2  # 선택 — OPENAI_API_KEY 사용 시에만 필요, 기본 미설치
