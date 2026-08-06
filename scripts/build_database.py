@@ -25,6 +25,7 @@ def main() -> None:
     layer_dirs = [
         ("staging", Path(paths["sql_staging_dir"])),
         ("intermediate", Path(paths["sql_intermediate_dir"])),
+        ("marts", Path(paths["sql_marts_dir"])),
     ]
 
     for layer_name, layer_dir in layer_dirs:
@@ -39,7 +40,8 @@ def main() -> None:
     print("\n생성된 테이블/뷰:")
     objects = con.sql(
         "SELECT table_name FROM information_schema.tables "
-        "WHERE table_name LIKE 'stg_%' OR table_name LIKE 'int_%' ORDER BY table_name"
+        "WHERE table_name LIKE 'stg_%' OR table_name LIKE 'int_%' OR table_name LIKE 'mart_%' "
+        "ORDER BY table_name"
     ).fetchall()
     for (name,) in objects:
         cnt = con.sql(f"SELECT COUNT(*) FROM {name}").fetchone()[0]
