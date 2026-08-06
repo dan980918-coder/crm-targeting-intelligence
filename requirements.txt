@@ -10,3 +10,4 @@ plotly>=5.24,<6
 pydantic>=2.10,<3
 anthropic>=0.120,<1
 # openai>=1.0,<2  # 선택 — OPENAI_API_KEY 사용 시에만 필요, 기본 미설치
+playwright>=1.40,<2  # scripts/capture_dashboard_screenshots.py 전용, 선택 설치
