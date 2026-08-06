@@ -241,11 +241,23 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 - **입력**: mart_customer_360, int_customer_observation_period, int_customer_purchase_history
 - **출력**: mart_customer_segment, Phase 7 대시보드 Lifecycle 페이지
 
+### mart_customer_segment
+
+- **목적**: CLAUDE.md 17번 규칙 기반 CRM 세그먼트 (mart_customer_lifecycle을 CRM 액션 단위로 재구성)
+- **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
+- **컬럼**: lifecycle_stage(원본 상태 보존), segment
+- **segment 값 8개**: `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
+- **탐색_고객 세분화 기준**(데이터 기반): 방문 ≥10회(해당 그룹 p90) 또는 검색 ≥1회(탐색_고객의 90%가 검색 0회라 검색 존재 자체가 이례적 신호) → `구매_직전_탐색형`, 나머지는 `저관여_탐색형`
+- **각 세그먼트의 정의/구매율/구매주기/CRM목적/추천액션/접촉우선순위/과접촉위험**: `reports/phase4_segment_profile.md`
+- **생성 SQL**: `sql/marts/mart_customer_segment.sql`
+- **품질 테스트**: `tests/data_quality/test_segment.py` — PK 유일성, 미분류 0건, 정확히 8개 세그먼트, lifecycle 상태별 인원과 정합성
+- **입력**: mart_customer_lifecycle, mart_customer_360
+- **출력**: Phase 7 대시보드 Segment Explorer
+
 ### 대기 중인 mart 테이블
 
 | 테이블 | 대기 사유 |
 |---|---|
-| mart_customer_segment | mart_customer_lifecycle 기반으로 다음 단계에서 구축 예정 |
 | mart_customer_snapshot | Feature/Label Window 구조는 결정됨(`docs/methodology.md`) — 다음 단계에서 구축 |
 | mart_churn_target | mart_customer_snapshot 이후 구축 (14/28일 기준은 이미 위 lifecycle 임계값과 동일 근거로 확정됨) |
 | mart_purchase_propensity | mart_churn_target과 함께 구축 예정 |
