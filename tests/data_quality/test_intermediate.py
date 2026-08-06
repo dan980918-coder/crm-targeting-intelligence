@@ -69,9 +69,12 @@ def test_purchase_gap_pooled_mean_matches_phase1(con):
     # 풀링(pooled)해서 평균/중앙값을 냈을 때 Phase 1 8.7 결과(mean=22.9463, median=9.4827)와
     # 같아야 함. 동일 client_id+event_ts(같은 결제의 여러 줄)는 distinct 처리 후
     # occasion 단위로 계산되므로, 여기서도 distinct해서 풀링해야 중복 카운트를 피한다.
+    # median()(정확 계산)을 사용한다 — approx_quantile은 근사 스케치 알고리즘이라
+    # 동일 데이터에서도 실행마다 9~10 사이로 결과가 흔들려(비결정적) 테스트가
+    # 간헐적으로 실패했다. 이 쿼리 규모에서는 정확 median도 성능 문제가 없다.
     mean_gap, median_gap = con.sql(
         """
-        SELECT AVG(days_since_prev_purchase_occasion), approx_quantile(days_since_prev_purchase_occasion, 0.5)
+        SELECT AVG(days_since_prev_purchase_occasion), median(days_since_prev_purchase_occasion)
         FROM (
             SELECT DISTINCT client_id, event_ts, days_since_prev_purchase_occasion
             FROM int_customer_purchase_history
