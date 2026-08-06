@@ -1,0 +1,13 @@
+feature,importance
+n_purchase_days_so_far,182760.98275828362
+n_page_visit_28d,61996.76561546326
+n_search_query_28d,56543.152181625366
+avg_purchase_gap_days_so_far,50530.01697278023
+days_since_last_purchase,39910.85460948944
+n_categories_so_far,35158.433990478516
+n_add_to_cart_28d,29257.66312122345
+n_purchase_occasions_so_far,10988.859536409378
+n_remove_from_cart_28d,2590.48512840271
+n_purchases_28d,2481.9283924102783
+n_purchases_7d,767.9868831634521
+n_purchases_14d,519.3769760131836
