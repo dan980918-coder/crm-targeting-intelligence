@@ -89,6 +89,21 @@ DuckDB 기반, 3계층 구조.
 
 ## 6. 고객분석
 
+### EDA 스냅샷
+
+| | |
+|---|---|
+| ![일별 이벤트량](reports/figures/01_daily_event_volume.png) | ![고객당 이벤트 수 분포](reports/figures/02_customer_event_count_distribution.png) |
+| ![구매 간격 분포](reports/figures/03_purchase_gap_distribution.png) | ![가격구간별 전환율·제거율](reports/figures/04_price_bucket_conversion_removal.png) |
+
+![이벤트 타입 보유 개수 분포](reports/figures/05_customer_event_type_count_distribution.png)
+
+가격구간(price_bucket)별 전환율은 선형이 아니라 **굴곡형**이다 — 60~79
+구간에서 전환율이 최고(23%대)·제거율이 최저(27%대)를 보이고, 최상위
+90~99 구간에서만 뚜렷한 가격 저항(전환율 11.6%까지 급락)이 나타난다.
+
+### 퍼널 · 코호트 · 라이프사이클 · 세그먼트
+
 - **퍼널**: 탐색 98.66% → 장바구니 10.40% → 구매 2.59% (고객 단위, 상품
   단위는 불가능)
 - **코호트/리텐션**: 첫 관측 구매 주차 기준 25개 코호트, 7일 재구매율
@@ -97,6 +112,14 @@ DuckDB 기반, 3계층 구조.
   중앙값·p90의 배수로 산출)으로 8개 상태 분류
 - **세그먼트**: 규칙 기반 8개(군집분석 미사용), CRM 목적·추천 액션·접촉
   우선순위·과접촉 위험 포함
+
+| | |
+|---|---|
+| ![퍼널](reports/figures/06_funnel_chart.png) | ![코호트 리텐션 히트맵](reports/figures/07_cohort_retention_heatmap.png) |
+| ![라이프사이클 분포](reports/figures/08_lifecycle_distribution.png) | ![세그먼트별 고객 수·구매율](reports/figures/09_segment_distribution.png) |
+
+코호트 히트맵의 마지막 3~4개 행(2022-11-14 이후)은 우측 검열로 값이
+실제보다 낮게 나타난다 — "3. 데이터 한계" 참고.
 
 상세: [`reports/phase3_funnel_analysis.md`](reports/phase3_funnel_analysis.md),
 [`reports/phase4_lifecycle_analysis.md`](reports/phase4_lifecycle_analysis.md),
@@ -110,6 +133,12 @@ DuckDB 기반, 3계층 구조.
 |---|---|---|---:|---|
 | Model A (구매 비활성) | 14/28일 내 미구매 예측 | 구매 이력 고객 | 0.753 / 0.741 | 규칙(최근성, 0.669)보다 우수 |
 | Model B (구매성향) | 14/28일 내 구매 예측 | 활동 고객(비구매자 포함) | 0.867 / 0.860 | 규칙(최근성, 0.805)보다 우수 |
+
+![ROC/Lift curve 비교](reports/figures/10_model_roc_lift_curves.png)
+
+Lift curve가 두 모델의 실무적 차이를 그대로 보여준다 — Model A는 전 구간에서
+Lift가 1.0 근처에 눌려 있는 반면(라벨 기저율이 이미 90%+), Model B는 상위
+1%에서 Lift 19.5배까지 치솟는다.
 
 기준선(무작위/전체평균/최근성/빈도/라이프사이클) 대비 비교 포함. 상세:
 [`reports/phase6_modeling_results.md`](reports/phase6_modeling_results.md),
@@ -127,6 +156,8 @@ DuckDB 기반, 3계층 구조.
 
 > 상위 10% 고객을 모델로 선정했을 때, 단순 최근성 기준보다 동일한
 > 포착률(Recall)을 20.47% 더 적은 인원으로 달성했다 (Model B, will_purchase_14d).
+
+![타기팅 시뮬레이션 결과](reports/figures/11_targeting_simulation_results.png)
 
 **왜 두 모델의 차이가 이렇게 큰가**: Lift는 라벨 기저율에 상한이 묶인다.
 Model A의 라벨(90%+가 "비활성")은 이미 다수 클래스라 개선 여지가 작고,
@@ -147,6 +178,14 @@ streamlit run app/Home.py
 모든 페이지에 데이터 관측 기간(2022년 6~12월) 고지를 표시하며, 우측 검열로
 왜곡될 수 있는 지표(비활성 고객 수, 최근 코호트 재구매율)에는 별도 경고를
 표시한다.
+
+| Overview | Lifecycle |
+|---|---|
+| ![Overview 페이지](reports/figures/dashboard_overview.png) | ![Lifecycle 페이지](reports/figures/dashboard_lifecycle.png) |
+
+| Segment Explorer | Targeting Simulator |
+|---|---|
+| ![Segment Explorer 페이지](reports/figures/dashboard_segment_explorer.png) | ![Targeting Simulator 페이지](reports/figures/dashboard_targeting_simulator.png) |
 
 ## 10. LLM 리포트
 
