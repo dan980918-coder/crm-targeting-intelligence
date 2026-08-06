@@ -12,6 +12,32 @@ import yaml
 
 CONFIG_PATH = Path("config/paths.yaml")
 
+# 순수 알파벳 순서로는 의존성이 깨지는 파일이 있어(mart_churn_target,
+# mart_purchase_propensity가 mart_customer_snapshot을 참조) 마트 레이어만
+# 명시적 순서를 지정한다. 목록에 없는 파일은 이 뒤에 알파벳 순으로 이어붙인다.
+MART_BUILD_ORDER = [
+    "mart_customer_360.sql",
+    "mart_customer_cohort.sql",
+    "mart_customer_daily.sql",
+    "mart_customer_lifecycle.sql",
+    "mart_customer_retention.sql",
+    "mart_customer_segment.sql",
+    "mart_customer_snapshot.sql",
+    "mart_customer_weekly.sql",
+    "mart_churn_target.sql",
+    "mart_purchase_propensity.sql",
+]
+
+
+def ordered_sql_files(layer_dir: Path, explicit_order: list[str] | None = None) -> list[Path]:
+    all_files = sorted(layer_dir.glob("*.sql"))
+    if not explicit_order:
+        return all_files
+    by_name = {f.name: f for f in all_files}
+    ordered = [by_name.pop(name) for name in explicit_order if name in by_name]
+    ordered.extend(sorted(by_name.values()))
+    return ordered
+
 
 def main() -> None:
     with open(CONFIG_PATH) as f:
@@ -29,7 +55,8 @@ def main() -> None:
     ]
 
     for layer_name, layer_dir in layer_dirs:
-        sql_files = sorted(layer_dir.glob("*.sql"))
+        explicit_order = MART_BUILD_ORDER if layer_name == "marts" else None
+        sql_files = ordered_sql_files(layer_dir, explicit_order)
         if not sql_files:
             continue
         print(f"\n=== {layer_name} 레이어 ===")
