@@ -1,0 +1,8 @@
+stage_metric,value
+total,22298361.0
+explore,21998527.0
+cart,2359888.0
+buy,909210.0
+explore_to_cart,2318862.0
+cart_to_buy,587437.0
+buy_with_no_footprint,258808.0
