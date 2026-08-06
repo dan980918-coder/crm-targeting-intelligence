@@ -272,10 +272,34 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 - **입력**: stg_product_buy, stg_add_to_cart, stg_remove_from_cart, stg_page_visit, stg_search_query, stg_product_properties
 - **출력**: mart_churn_target, mart_purchase_propensity, Phase 6 모델링
 
+### mart_churn_target
+
+- **목적**: CLAUDE.md 18번 Model A(구매 비활성 위험) 학습용 타겟 테이블
+- **Grain**: 1행 = 1 고객 × 1 snapshot_date (mart_customer_snapshot과 동일, 4,196,385행) / **PK**: (client_id, snapshot_date)
+- **모집단**: mart_customer_snapshot과 동일 — snapshot_date 이전 구매 이력이 있는 고객만
+- **컬럼**: mart_customer_snapshot의 feature 컬럼 전부 + `churn_14d`, `churn_28d` (원본 `label_inactive_14d/28d`를 모델링 목적에 맞게 리네임)
+- **생성 SQL**: `sql/marts/mart_churn_target.sql`
+- **입력**: mart_customer_snapshot
+
+### mart_purchase_propensity
+
+- **목적**: CLAUDE.md 19번 Model B(향후 구매 가능성) 학습용 타겟 테이블
+- **Grain**: 1행 = 1 고객 × 1 snapshot_date (22,277,058행) / **PK**: (client_id, snapshot_date)
+- **모집단** (mart_churn_target보다 넓음 — 핵심 설계 포인트): snapshot_date 이전 누적 기준
+  방문 ≥10회 또는 검색 ≥1회 또는 장바구니 이력 또는 구매 이력이 있는 고객.
+  구매 이력만으로 모집단을 제한하면 이 라벨이 churn 라벨의 단순 반전이 되어
+  버려 별도 모델의 의미가 없어지므로, 아직 구매 전이지만 전환 가능성이
+  있는 고객(고관여 탐색·장바구니)까지 포함했다. 순수 1~2회성 방문자(전체의
+  76.89%, `저관여_탐색형`)는 전환 가능성이 낮아 실무 관행대로 제외.
+- **컬럼**: has_purchase_history, last_purchase_ts, days_since_last_purchase, n_purchase_occasions_so_far, n_page_visit_28d, n_search_query_28d, n_add_to_cart_28d, n_remove_from_cart_28d, will_purchase_14d, will_purchase_28d
+- **효율성**: 원본 `page_visit`(199M행)을 다시 스캔하지 않고 이미 만든 `int_customer_daily_activity`(46.9M행 집계)를 재사용해 계산 비용을 낮춤
+- **검증**: 라벨 비율이 스냅샷 전 구간에서 안정적(14일 1.3~2.2%, 28일 2.3~3.5%, 검열 없음), 모집단이 마지막 스냅샷 기준 4,125,793명으로 사전 추정치와 정확히 일치
+- **생성 SQL**: `sql/marts/mart_purchase_propensity.sql`
+- **품질 테스트**: `tests/data_quality/test_churn_propensity.py` (9개 — 두 테이블 공통, 특히 propensity가 churn_target보다 넓은 모집단을 갖는지, 비구매 고객이 실제로 포함되는지 검증)
+- **입력**: mart_customer_360, int_customer_daily_activity, int_customer_purchase_history
+
 ### 대기 중인 mart 테이블
 
 | 테이블 | 대기 사유 |
 |---|---|
-| mart_churn_target | mart_customer_snapshot의 label_inactive_14d/28d를 그대로 활용해 다음 단계에서 구축 예정 |
-| mart_purchase_propensity | mart_customer_snapshot의 label_purchase_14d/28d를 그대로 활용해 함께 구축 예정 |
 | mart_targeting_simulation | Phase 6 모델 결과가 있어야 의미 있는 시뮬레이션 가능 — 모델링 단계까지 대기 |
