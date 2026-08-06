@@ -298,8 +298,15 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 - **품질 테스트**: `tests/data_quality/test_churn_propensity.py` (9개 — 두 테이블 공통, 특히 propensity가 churn_target보다 넓은 모집단을 갖는지, 비구매 고객이 실제로 포함되는지 검증)
 - **입력**: mart_customer_360, int_customer_daily_activity, int_customer_purchase_history
 
-### 대기 중인 mart 테이블
+### mart_targeting_simulation
 
-| 테이블 | 대기 사유 |
-|---|---|
-| mart_targeting_simulation | Phase 6 모델 결과가 있어야 의미 있는 시뮬레이션 가능 — 모델링 단계까지 대기 |
+- **목적**: CLAUDE.md 23~24번 CRM 타기팅 정책 비교 시뮬레이션 결과
+- **Grain**: 1행 = 1 모델 × 1 라벨 × 1 접촉비율 × 1 정책(72행) / **PK**: (model, label, contact_rate_pct, policy)
+- **정책**: 무작위, 최근성_규칙, (Model A만)라이프사이클_규칙, 모델_LightGBM, 모델_vs_최근성_규칙_동일recall비교
+- **컬럼**: n_total, n_selected, n_actual_captured, precision, recall, lift, customers_needed_by_rule_for_same_recall, contact_reduction_pct(비교 행에만 존재)
+- **평가 대상**: 테스트셋(out-of-sample, 2022-10-27/11-10)만 사용
+- **핵심 결과**: Model B(구매성향)는 동일 Recall 달성 시 최근성 규칙 대비 18~46% 접촉 인원 절감. Model A(구매 비활성)는 통계적으로 규칙보다 우수하나(AUC) 실무적 절감 효과는 1~2%로 제한적 — 상세 해석은 `reports/phase7_targeting_simulation.md`
+- **생성 SQL/스크립트**: `scripts/build_targeting_simulation.py` (Python에서 시뮬레이션 후 DuckDB 테이블로 적재)
+- **품질 테스트**: `tests/data_quality/test_targeting_simulation.py` (5개 — row count, 접촉비율-선정인원 일치, 모델 recall이 무작위보다 항상 높은지 등)
+- **입력**: mart_churn_target, mart_purchase_propensity
+- **출력**: Phase 8 대시보드 Targeting Simulator 페이지

@@ -46,6 +46,21 @@ def calibration_table(y_true: np.ndarray, y_score: np.ndarray, n_bins: int = 10)
     return agg
 
 
+def customers_needed_for_recall(y_true: np.ndarray, y_score: np.ndarray, target_recall: float) -> int:
+    """target_recall(0~1)을 달성하려면 이 점수로 정렬했을 때 상위 몇 명을
+    선택해야 하는지 반환. CLAUDE.md 23번 "동일 포착률에 필요한 접촉 고객 수"."""
+    y_true = np.asarray(y_true)
+    y_score = np.asarray(y_score, dtype=float)
+    total_true = y_true.sum()
+    if total_true == 0:
+        return len(y_true)
+    order = np.argsort(-y_score)
+    cum_true = np.cumsum(y_true[order])
+    target_count = target_recall * total_true
+    idx = int(np.searchsorted(cum_true, target_count, side="left"))
+    return min(idx + 1, len(y_true))
+
+
 def full_evaluation(y_true: np.ndarray, y_score: np.ndarray, base_rate_train: float | None = None) -> dict:
     y_true = np.asarray(y_true)
     y_score = np.asarray(y_score, dtype=float)
