@@ -10,9 +10,9 @@ data/external/
 .env
 .env.*
 
-# Models / artifacts
-models/
-artifacts/
+# Trained model artifacts (root-level only — src/models/, reports/model_cards/ are source/docs, not artifacts)
+/models/
+/artifacts/
 
 # Python
 __pycache__/
