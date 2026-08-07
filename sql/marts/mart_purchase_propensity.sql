@@ -18,9 +18,24 @@
 -- 효율성: 원본 199M행 page_visit을 다시 스캔하지 않고, 이미 만들어진
 -- int_customer_daily_activity(46.9M행, client x date 집계)를 재사용한다.
 --
--- 입력: mart_customer_360, int_customer_daily_activity, int_customer_purchase_history
+-- avg_category_repurchase_rate (2026-08-08 추가): mart_customer_snapshot과
+-- 동일한 lookup(int_customer_category_repurchase_avg_by_snapshot)을 재사용.
+-- 처음엔 이 mart 안에서 직접 계산했으나, 기존 activity_before 조인(46.9M행
+-- int_customer_daily_activity 기반)과 한 쿼리 플랜에서 합쳐지며 8GB 환경에서
+-- OOM이 발생해 별도 intermediate 테이블 + 가벼운 LEFT JOIN으로 분리했다.
+-- 구매 이력이 없는 후보 고객(방문/검색/장바구니만 있는 경우)은 정의상
+-- NULL — "정보 없음"과 "재구매 안 함(0)"을 구분해야 하므로 0으로 대체하지 않음.
+--
+-- 입력: mart_customer_360, int_customer_daily_activity, int_customer_purchase_history,
+--       int_customer_category_repurchase_avg_by_snapshot
 -- 출력: Phase 6 모델 B 학습/평가
-CREATE OR REPLACE TABLE mart_purchase_propensity AS
+--
+-- 구현 노트: 이 파일은 두 단계 CREATE TABLE로 나뉜다. avg_category_repurchase_rate
+-- LEFT JOIN까지 한 번의 쿼리 플랜에 넣으면(원래 시도) activity_before의
+-- 기존 무거운 조인과 합쳐지며 8GB 환경에서 OOM이 발생했다. 1단계에서 기존
+-- 로직을 먼저 디스크에 완전히 materialize하고, 2단계에서 그 결과 테이블에
+-- 가벼운 LEFT JOIN 하나만 추가하는 방식으로 우회했다.
+CREATE OR REPLACE TABLE mart_purchase_propensity_base AS
 WITH bounds AS (
     SELECT MAX(last_event_ts) AS window_max, MIN(first_event_ts) AS window_min
     FROM int_customer_observation_period
@@ -115,3 +130,15 @@ FROM population p
 LEFT JOIN purchase_before pb ON p.snapshot_date = pb.snapshot_date AND p.client_id = pb.client_id
 LEFT JOIN activity_before ab ON p.snapshot_date = ab.snapshot_date AND p.client_id = ab.client_id
 JOIN label_calc lc ON p.snapshot_date = lc.snapshot_date AND p.client_id = lc.client_id;
+
+CREATE OR REPLACE TABLE mart_purchase_propensity AS
+SELECT
+    base.* EXCLUDE (will_purchase_14d, will_purchase_28d),
+    car.avg_category_repurchase_rate,
+    base.will_purchase_14d,
+    base.will_purchase_28d
+FROM mart_purchase_propensity_base base
+LEFT JOIN int_customer_category_repurchase_avg_by_snapshot car
+    ON base.snapshot_date = car.snapshot_date AND base.client_id = car.client_id;
+
+DROP TABLE mart_purchase_propensity_base;

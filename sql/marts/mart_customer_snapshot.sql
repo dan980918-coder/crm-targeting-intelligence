@@ -20,8 +20,18 @@
 -- 분리하는 것이 합리적이라 판단해 이번 빌드에서는 제외함(추후 필요 시
 -- mart_activity_snapshot 등으로 별도 구축).
 --
+-- avg_category_repurchase_rate (2026-08-08 추가): 고객이 snapshot_date 이전에
+-- 구매한 카테고리들의 재구매율(int_customer_category_repurchase_avg_by_snapshot,
+-- snapshot_date마다 그 시점 이전 데이터로만 재계산 — 미래 누수 없음) 평균.
+-- 원래 이 mart 안에 인라인 CTE로 계산했으나, 이 파일의 기존 무거운 조인과
+-- 한 쿼리 플랜에 합쳐지며 OOM이 발생해(8GB 환경) 별도 intermediate 테이블로
+-- 분리하고 여기서는 가벼운 LEFT JOIN만 한다. 표본 100명 미만 카테고리는
+-- 근거 테이블에서 이미 제외돼 있어, 고객이 그런 카테고리에서만 구매했다면
+-- NULL(정보 없음)이 된다 — 0으로 대체하지 않음(0은 "확실히 재구매 안 함"이라는
+-- 잘못된 의미가 되므로).
+--
 -- 입력: stg_product_buy, stg_add_to_cart, stg_remove_from_cart, stg_page_visit,
---       stg_search_query, stg_product_properties
+--       stg_search_query, stg_product_properties, int_customer_category_repurchase_avg_by_snapshot
 -- 출력: mart_churn_target, mart_purchase_propensity, Phase 6 모델링
 CREATE OR REPLACE TABLE mart_customer_snapshot AS
 WITH bounds AS (
@@ -160,6 +170,7 @@ SELECT
     pf.n_purchases_14d,
     pf.n_purchases_28d,
     COALESCE(cf.n_categories_so_far, 0) AS n_categories_so_far,
+    car.avg_category_repurchase_rate,
     COALESCE(vf.n_page_visit_28d, 0) AS n_page_visit_28d,
     COALESCE(sf.n_search_query_28d, 0) AS n_search_query_28d,
     COALESCE(caf.n_add_to_cart_28d, 0) AS n_add_to_cart_28d,
@@ -175,4 +186,6 @@ LEFT JOIN visit_features vf ON s.snapshot_date = vf.snapshot_date AND s.client_i
 LEFT JOIN search_features sf ON s.snapshot_date = sf.snapshot_date AND s.client_id = sf.client_id
 LEFT JOIN cart_add_features caf ON s.snapshot_date = caf.snapshot_date AND s.client_id = caf.client_id
 LEFT JOIN cart_remove_features crf ON s.snapshot_date = crf.snapshot_date AND s.client_id = crf.client_id
+LEFT JOIN int_customer_category_repurchase_avg_by_snapshot car
+    ON s.snapshot_date = car.snapshot_date AND s.client_id = car.client_id
 JOIN label_features lf ON s.snapshot_date = lf.snapshot_date AND s.client_id = lf.client_id;
