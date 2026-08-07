@@ -1,0 +1,8 @@
+has_explore,has_cart,is_buyer,n_customers,pct_of_buyers
+X,X,True,258808,28.46515106521046
+X,O,True,9711,1.0680700828191507
+O,X,True,62965,6.925242793194092
+O,O,True,577726,63.5415360587763
+X,O,False,31315,
+O,X,False,19616700,
+O,O,False,1741136,
