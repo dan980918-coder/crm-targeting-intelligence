@@ -21,6 +21,7 @@ SELECT
     n_purchases_14d,
     n_purchases_28d,
     n_categories_so_far,
+    avg_category_repurchase_rate,
     n_page_visit_28d,
     n_search_query_28d,
     n_add_to_cart_28d,

@@ -41,6 +41,7 @@ FEATURE_COLS = [
     "has_purchase_history",
     "days_since_last_purchase",
     "n_purchase_occasions_so_far",
+    "avg_category_repurchase_rate",
     "n_page_visit_28d",
     "n_search_query_28d",
     "n_add_to_cart_28d",
@@ -59,19 +60,23 @@ def split_data(df: pd.DataFrame):
 
 
 def prepare_lr_features(train, val, test):
-    imputer_median = train["days_since_last_purchase"].median()
+    recency_median = train["days_since_last_purchase"].median()
+    cat_rate_median = train["avg_category_repurchase_rate"].median()
 
     def transform(d):
         d = d.copy()
         d["has_purchase_history"] = d["has_purchase_history"].astype(int)
-        d["days_since_last_purchase"] = d["days_since_last_purchase"].fillna(imputer_median)
+        d["days_since_last_purchase"] = d["days_since_last_purchase"].fillna(recency_median)
+        d["avg_category_repurchase_rate_missing"] = d["avg_category_repurchase_rate"].isna().astype(int)
+        d["avg_category_repurchase_rate"] = d["avg_category_repurchase_rate"].fillna(cat_rate_median)
         return d
 
     train_t, val_t, test_t = transform(train), transform(val), transform(test)
+    cols = FEATURE_COLS + ["avg_category_repurchase_rate_missing"]
     scaler = StandardScaler()
-    X_train = scaler.fit_transform(train_t[FEATURE_COLS])
-    X_val = scaler.transform(val_t[FEATURE_COLS])
-    X_test = scaler.transform(test_t[FEATURE_COLS])
+    X_train = scaler.fit_transform(train_t[cols])
+    X_val = scaler.transform(val_t[cols])
+    X_test = scaler.transform(test_t[cols])
     return X_train, X_val, X_test
 
 

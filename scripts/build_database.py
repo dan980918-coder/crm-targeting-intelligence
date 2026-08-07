@@ -12,6 +12,21 @@ import yaml
 
 CONFIG_PATH = Path("config/paths.yaml")
 
+# int_customer_category_repurchase_by_snapshot은 이름이 알파벳순으로
+# int_customer_observation_period/int_customer_purchase_history보다 앞에 와
+# 의존성이 깨진다 (2026-08-08 추가, Model A/B 카테고리 재구매율 feature 근거
+# 테이블). intermediate 레이어도 명시적 순서를 지정한다.
+INTERMEDIATE_BUILD_ORDER = [
+    "int_customer_observation_period.sql",
+    "int_customer_purchase_gap.sql",
+    "int_customer_purchase_history.sql",
+    "int_customer_cart_behavior.sql",
+    "int_customer_daily_activity.sql",
+    "int_customer_category_behavior.sql",
+    "int_customer_category_repurchase_by_snapshot.sql",
+    "int_customer_category_repurchase_avg_by_snapshot.sql",
+]
+
 # 순수 알파벳 순서로는 의존성이 깨지는 파일이 있어(mart_churn_target,
 # mart_purchase_propensity가 mart_customer_snapshot을 참조) 마트 레이어만
 # 명시적 순서를 지정한다. 목록에 없는 파일은 이 뒤에 알파벳 순으로 이어붙인다.
@@ -55,7 +70,12 @@ def main() -> None:
     ]
 
     for layer_name, layer_dir in layer_dirs:
-        explicit_order = MART_BUILD_ORDER if layer_name == "marts" else None
+        if layer_name == "marts":
+            explicit_order = MART_BUILD_ORDER
+        elif layer_name == "intermediate":
+            explicit_order = INTERMEDIATE_BUILD_ORDER
+        else:
+            explicit_order = None
         sql_files = ordered_sql_files(layer_dir, explicit_order)
         if not sql_files:
             continue
