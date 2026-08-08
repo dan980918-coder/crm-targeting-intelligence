@@ -10,10 +10,10 @@
 - 비활성 고객: 489,174명
 
 ## 2. Model Predictions
-- Model_A_churn (churn_14d), 상위 10%: Recall 10.4%, Lift 1.04배, Precision 98.3%
-- Model_A_churn (churn_28d), 상위 10%: Recall 10.7%, Lift 1.07배, Precision 96.3%
-- Model_B_propensity (will_purchase_14d), 상위 10%: Recall 63.0%, Lift 6.30배, Precision 8.3%
-- Model_B_propensity (will_purchase_28d), 상위 10%: Recall 60.3%, Lift 6.03배, Precision 14.8%
+- Model_A_churn (churn_14d), 상위 10%: Recall 10.4%, Lift 1.04배, Precision 98.2%
+- Model_A_churn (churn_28d), 상위 10%: Recall 10.7%, Lift 1.07배, Precision 96.2%
+- Model_B_propensity (will_purchase_14d), 상위 10%: Recall 62.2%, Lift 6.23배, Precision 8.6%
+- Model_B_propensity (will_purchase_28d), 상위 10%: Recall 59.5%, Lift 5.95배, Precision 15.2%
 
 ## 3. Recommended Actions
 - [구매_직전_탐색형] (고객 2,212,414명, 접촉 우선순위 높음) 목적: 구매 유도(Conversion)에 맞는 CRM 액션을 검토해볼 수 있습니다.
