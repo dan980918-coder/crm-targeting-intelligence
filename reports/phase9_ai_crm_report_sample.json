@@ -28,33 +28,33 @@
       "model_name": "Model_A_churn",
       "label": "churn_14d",
       "contact_rate_pct": 10,
-      "recall": 0.1038678551470844,
-      "lift": 1.0386814694350863,
-      "precision": 0.9829826384987076
+      "recall": 0.103807743428342,
+      "lift": 1.0380803505589404,
+      "precision": 0.9824137543544218
     },
     {
       "model_name": "Model_A_churn",
       "label": "churn_28d",
       "contact_rate_pct": 10,
-      "recall": 0.1068160164037491,
-      "lift": 1.0681631648245573,
-      "precision": 0.9629593212720532
+      "recall": 0.106734215793127,
+      "lift": 1.0673451564203082,
+      "precision": 0.9622218788627936
     },
     {
       "model_name": "Model_B_propensity",
       "label": "will_purchase_14d",
       "contact_rate_pct": 10,
-      "recall": 0.6300134889904606,
-      "lift": 6.3001381125088445,
-      "precision": 0.083019924730784
+      "recall": 0.62249980467224,
+      "lift": 6.225001402091421,
+      "precision": 0.0858907362140106
     },
     {
       "model_name": "Model_B_propensity",
       "label": "will_purchase_28d",
       "contact_rate_pct": 10,
-      "recall": 0.6030432238107182,
-      "lift": 6.030435322754864,
-      "precision": 0.1475818837253019
+      "recall": 0.5949071394749302,
+      "lift": 5.949074601389644,
+      "precision": 0.1523715324473719
     }
   ],
   "recommended_actions": [
