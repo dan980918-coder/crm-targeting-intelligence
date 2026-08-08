@@ -30,9 +30,15 @@ SEGMENT_META = {
     },
     "장바구니_이탈형": {
         "crm_purpose": "장바구니 이탈 회수(Cart Recovery)",
-        "recommended_action": "장바구니 리마인더, 재고/가격 알림, 소액 할인",
+        "recommended_action": "대안 상품 추천(이미 명시적으로 제거한 상품이라 동일 상품 리마인더보다 적합), 강도 높은 프로모션",
         "priority": "매우 높음",
         "over_contact_risk": "낮음~중간",
+    },
+    "장바구니_보류형": {
+        "crm_purpose": "체크아웃 완결 유도(Checkout Completion)",
+        "recommended_action": "가벼운 장바구니 리마인더, 재고 임박 알림 — 아직 거부 신호 없어 강한 프로모션은 불필요",
+        "priority": "높음",
+        "over_contact_risk": "낮음",
     },
     "첫_관측_구매_고관여형": {
         "crm_purpose": "2차 구매 유도(Second Purchase Activation)",
