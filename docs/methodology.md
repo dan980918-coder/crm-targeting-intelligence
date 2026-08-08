@@ -389,3 +389,76 @@ CLAUDE.md 17번은 원래 세그먼트 후보를 8개로 예시했으나, 문구
 - `sql/marts/mart_customer_segment.sql`, `sql/intermediate/int_customer_cart_behavior.sql`
 - `reports/phase4_segment_profile.md` (장바구니_이탈형/장바구니_보류형 상세)
 - `CLAUDE.md` 17번 (취소선 + 갱신 이력)
+
+---
+
+## 2026-08-08 — `mart_purchase_propensity` 모집단 조건을 search_first로 통일
+
+### 배경
+
+`mart_customer_segment.sql`의 `구매_직전_탐색형` 분류 기준은 이미 "검색
+1회 이상"에서 search_first(검색이 방문보다 먼저)로 교체됐는데(2026-08-07
+항목 참고 — search_only 7.75% vs search_first 44.02% 전환율 차이가
+근거), `mart_purchase_propensity.sql`의 Model B 모집단 조건은 이 교체를
+반영받지 못한 채 여전히 "검색 1회 이상"(`n_search_query >= 1` /
+`cum_search >= 1`)을 쓰고 있었다. 두 mart가 JOIN으로 연결된 게 아니라
+같은 판단 로직을 각자 독립적으로 구현했기 때문에 한쪽만 갱신되고 다른
+쪽은 갱신되지 않은 채 남은 것 — Phase 4에서 이미 폐기한 저의도 신호가
+Phase 6 모델링 모집단에는 계속 섞여 있었던 셈이다.
+
+### 결정
+
+`candidate_ids`(전체 관측기간 상한 후보)와 `population`(snapshot_date별
+실제 모집단) 두 곳의 "검색 1회 이상" 조건을 모두 search_first로 교체한다.
+`population` 쪽은 미래 누수 방지를 위해 "첫 검색·첫 방문이 모두
+snapshot_date 이전에 이미 관측됐고, 첫 검색이 첫 방문보다 이르다"는
+조건으로 구현했다(`candidate_ids`는 느슨한 상한 후보 필터일 뿐이라
+전체 기간 기준 search_first를 써도 안전 — 이후 `population`에서
+snapshot_date 기준으로 다시 걸러짐).
+
+구현상 이 계산(첫 검색/첫 방문 시각)은 `stg_search_query`/`stg_page_visit`
+원본을 다시 스캔해야 하는데, 기존 `activity_before`(46.9M행
+`int_customer_daily_activity` 기반)의 무거운 조인과 한 쿼리 플랜에
+합치면 다시 OOM이 날 수 있어(2026-08-08 `avg_category_repurchase_rate`
+추가 때 이미 겪은 문제), `tmp_candidate_ids`라는 별도 TEMP 테이블로
+먼저 고정한 뒤 가볍게 JOIN하는 방식을 처음부터 적용했다.
+
+### 결과
+
+**모집단 크기**: 22,277,058행 → 21,119,640행 (-1,157,418행, -5.20%),
+고유 고객 수 4,125,793명 → 3,916,042명 (-5.08%).
+
+**라벨 비율(더 좁지만 더 진짜 활동 고객으로 집중)**:
+
+| 라벨 | 변경 전 | 변경 후 |
+|---|---:|---:|
+| will_purchase_14d | 1.44% | 1.51% |
+| will_purchase_28d | 2.56% | 2.67% |
+
+저의도 search-only 고객이 빠지면서 양성 라벨 비율이 소폭 상승했다 —
+Phase 4에서 확인한 방향(저의도 트래픽 제거 시 전환 관련 지표가 개선)과
+일치한다.
+
+**재학습 결과(LightGBM, test set)**:
+
+| 라벨 | AUC 변경 전 | AUC 변경 후 | Lift@10% 변경 전 | Lift@10% 변경 후 |
+|---|---:|---:|---:|---:|
+| will_purchase_14d | 0.8670 | 0.8654 (-0.0016) | 6.31 | 6.23 |
+| will_purchase_28d | 0.8598 | 0.8582 (-0.0016) | 6.03 | 5.95 |
+
+AUC/Lift가 아주 미세하게(둘 다 -0.0016) 낮아졌다 — 저의도 고객을 제외해
+"쉽게 구분되는 진짜 비활동 고객"이 모집단에서 줄어든 영향으로 추정된다.
+방향과 크기 모두 우려할 수준이 아니며, 모집단을 실제 정의("활동 고객")에
+더 가깝게 정정했다는 게 핵심 근거이지 AUC 최적화가 목적이 아니었다.
+
+**Feature importance**: 순위는 변하지 않았다(1위 `has_purchase_history`
+~ 8위(꼴찌) `avg_category_repurchase_rate` 그대로). `n_search_query_28d`의
+상대 중요도가 24.4% → 27.0%(최상위 feature 대비)로 소폭 상승했는데,
+남은 모집단의 검색 신호가 이전보다 더 순도 높은(저의도가 섞이지 않은)
+신호가 됐기 때문으로 해석된다.
+
+### 관련 문서
+
+- `sql/marts/mart_purchase_propensity.sql`
+- `docs/methodology.md` 2026-08-07 "`구매_직전_탐색형` 세분화 기준 재조정" 항목 (search_first 원 출처)
+- `reports/phase6_model_b_results.csv`, `reports/phase6_model_b_feature_importance.csv`

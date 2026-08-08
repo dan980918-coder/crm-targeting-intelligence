@@ -48,7 +48,12 @@
 --
 -- 입력: mart_customer_lifecycle, mart_customer_360, stg_search_query, stg_page_visit,
 --       int_customer_cart_behavior
--- 출력: Phase 7 대시보드 Segment Explorer, Phase 6 모델 feature(세그먼트 자체를 baseline rule로도 사용)
+-- 출력: Phase 7 대시보드 Segment Explorer
+-- (2026-08-08 정정: 이전 주석은 "Phase 6 모델 feature/baseline rule로도
+-- 사용"이라고 적혀 있었으나 사실이 아니었다 — src/models/baselines.py의
+-- 모든 baseline 함수는 days_since_last_purchase 등 원시 컬럼만 쓰고
+-- mart_customer_segment를 참조하지 않는다. 실제로 구현하지 않은 계획을
+-- 사실처럼 적어둔 문서 부채였다.)
 CREATE OR REPLACE TABLE mart_customer_segment AS
 WITH first_search AS (
     SELECT client_id, MIN(event_ts) AS first_search_ts

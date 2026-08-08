@@ -285,9 +285,13 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 ### mart_purchase_propensity
 
 - **목적**: CLAUDE.md 19번 Model B(향후 구매 가능성) 학습용 타겟 테이블
-- **Grain**: 1행 = 1 고객 × 1 snapshot_date (22,277,058행) / **PK**: (client_id, snapshot_date)
+- **Grain**: 1행 = 1 고객 × 1 snapshot_date (21,119,640행, 2026-08-08 갱신 —
+  이전 22,277,058행에서 아래 모집단 조건 변경으로 감소, `docs/methodology.md` 참고)
+  / **PK**: (client_id, snapshot_date)
 - **모집단** (mart_churn_target보다 넓음 — 핵심 설계 포인트): snapshot_date 이전 누적 기준
-  방문 ≥10회 또는 검색 ≥1회 또는 장바구니 이력 또는 구매 이력이 있는 고객.
+  방문 ≥10회 또는 search_first(검색이 방문보다 먼저 — 2026-08-08 갱신, 이전
+  "검색 ≥1회"는 `mart_customer_segment.sql`이 이미 폐기한 저의도 기준이라
+  통일함) 또는 장바구니 이력 또는 구매 이력이 있는 고객.
   구매 이력만으로 모집단을 제한하면 이 라벨이 churn 라벨의 단순 반전이 되어
   버려 별도 모델의 의미가 없어지므로, 아직 구매 전이지만 전환 가능성이
   있는 고객(고관여 탐색·장바구니)까지 포함했다. 순수 1~2회성 방문자(전체의
