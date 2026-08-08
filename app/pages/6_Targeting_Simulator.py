@@ -12,8 +12,7 @@ st.title("CRM Targeting Simulator")
 show_data_period_notice()
 
 st.caption(
-    "테스트셋(out-of-sample, 2022-10-27/2022-11-10, 학습에 쓰이지 않은 시점) 기준 시뮬레이션입니다. "
-    "실제 캠페인 성과가 아니라 과거 데이터 기반 대상 선정 효율 비교입니다 (CLAUDE.md 5번)."
+    "테스트셋(out-of-sample, 2022-10-27/2022-11-10, 학습에 쓰이지 않은 시점) 기준 시뮬레이션입니다."
 )
 
 df = load_targeting_simulation()
