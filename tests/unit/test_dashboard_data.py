@@ -34,9 +34,10 @@ def test_lifecycle_distribution_has_8_stages():
     assert abs(df["pct"].sum() - 100) < 0.01
 
 
-def test_segment_profile_has_8_segments_with_crm_metadata():
+def test_segment_profile_has_9_segments_with_crm_metadata():
+    # 2026-08-08: 장바구니_이탈형을 장바구니_이탈형/장바구니_보류형으로 분리해 8 -> 9
     df = pd.read_csv(DASHBOARD_DIR / "segment_profile.csv")
-    assert len(df) == 8
+    assert len(df) == 9
     for col in ["crm_purpose", "recommended_action", "priority", "over_contact_risk"]:
         assert df[col].notna().all(), f"{col}에 결측 존재 — SEGMENT_META 매핑 누락 의심"
 
