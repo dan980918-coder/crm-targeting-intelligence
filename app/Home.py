@@ -40,7 +40,8 @@ st.markdown(
 - **Lifecycle**: 고객 라이프사이클 8개 상태 분포
 - **Segment Explorer**: CRM 세그먼트별 특성과 추천 액션
 - **Targeting Simulator**: 접촉 비율별 모델 vs 규칙 기반 타기팅 비교
-- **AI CRM Report**: SQL 집계 기반 리포트 (LLM 생성 파트는 Phase 9에서 연결 예정)
+- **AI CRM Report**: SQL 집계 기반 Data Facts/Model Predictions + LLM이 생성한
+  Recommended Actions/Testable Hypotheses (API 키 없으면 mock 백엔드로 동작)
 
 왼쪽 사이드바에서 페이지를 선택하세요.
 """
