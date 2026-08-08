@@ -95,10 +95,13 @@ def test_no_purchase_history_implies_null_in_propensity(con):
 
 
 def test_row_counts_unchanged_by_feature_addition(con):
-    # avg_category_repurchase_rate 추가가 LEFT JOIN 중복으로 행을 늘리지 않았는지 확인
+    # avg_category_repurchase_rate 추가가 LEFT JOIN 중복으로 행을 늘리지 않았는지 확인.
+    # n_propensity 기대값은 2026-08-08 search_first 통일(mart_purchase_propensity.sql)로
+    # 22,277,058 -> 21,119,640으로 갱신됨(모집단 조건 변경 — docs/methodology.md 참고,
+    # LEFT JOIN 중복 문제와는 무관).
     n_snapshot = con.sql("SELECT COUNT(*) FROM mart_customer_snapshot").fetchone()[0]
     n_churn = con.sql("SELECT COUNT(*) FROM mart_churn_target").fetchone()[0]
     n_propensity = con.sql("SELECT COUNT(*) FROM mart_purchase_propensity").fetchone()[0]
     assert n_snapshot == 4_196_385
     assert n_churn == 4_196_385
-    assert n_propensity == 22_277_058
+    assert n_propensity == 21_119_640
