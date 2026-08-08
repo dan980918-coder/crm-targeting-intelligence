@@ -320,3 +320,72 @@ OR (검색 이벤트가 존재 AND 방문 이벤트가 존재 AND 첫 검색 시
 
 - `sql/marts/mart_customer_segment.sql`
 - `docs/methodology.md` 2026-08-05 "라이프사이클 상태 임계값 확정" 항목 (방문 10회 p90 근거의 출처)
+
+---
+
+## 2026-08-08 — `장바구니_이탈형`을 `장바구니_이탈형`/`장바구니_보류형`으로 분리 (8 → 9개 세그먼트)
+
+### 배경
+
+`장바구니_이탈형`(1,772,451명)의 CRM 목적은 "장바구니 이탈 회수(Cart
+Recovery)"였는데, 실제로 이 세그먼트 안에서 "언제 장바구니에서 뺐는가"를
+확인해보니(add→remove 간격 분포) 뚜렷한 이봉(bimodal) 패턴이 나와, 먼저
+`cart_removal_subtype` 참고용 컬럼만 추가했다(no_removal_recorded/fast_removal/
+slow_removal, 경계값 6시간은 add→remove 간격의 로그스케일 히스토그램에서
+나타나는 계곡 구간의 중간값 — 임의 기준 아님).
+
+이 컬럼을 적용해보니 `no_removal_recorded`(제거 이벤트 자체가 없음)가
+1,406,964명으로 세그먼트의 **79.38%**를 차지했다. 이게 "아직 지울 시간이
+없었을 뿐"(우측 검열)인지 "로깅이 빠졌을 뿐"인지 확인한 결과 둘 다
+아니었다:
+
+- **로깅 문제가 아님**: 이 그룹의 96.53%는 remove_from_cart 이벤트 자체가
+  전혀 없다(add와 매칭 실패가 아니라 애초에 이벤트가 없음). 나머지
+  3.47%(remove는 있으나 add와 매칭 안 됨)도 대부분(42.4%가 add 이벤트
+  자체 없음) 좌측 검열(관측 시작 이전에 이미 담아둔 상품을 관측 중 제거)로
+  설명 가능해 별도 처리가 필요한 데이터 결함은 아니라고 판단했다.
+- **시간 부족(우측 검열) 문제도 아님**: 마지막 add부터 관측 종료일까지
+  남은 시간이 중앙값 76일이고, 12.1%만 종료 14일 이내다. 87.9%는 지울
+  시간이 최소 2주, 대부분 훨씬 더 있었는데도 안 지웠다.
+
+즉 이 79.38%는 "능동적으로 거부한 적 없이 아직 결정을 안 내린" 상태다.
+"이탈"(능동적 거부, remove 이벤트로 확인됨)과 "보류"(미결정, remove
+이벤트 없음)는 실제 구매 재고 확률과 CRM 대응이 다를 수밖에 없어, 참고용
+컬럼만으로는 부족하다고 판단해 세그먼트 자체를 분리하기로 했다.
+
+### 결정
+
+`장바구니_이탈형`을 다음 두 세그먼트로 분리한다(세그먼트 총 개수 8 → 9).
+
+| 세그먼트 | 정의 | 인원 | 비중 | CRM 목적 |
+|---|---|---:|---:|---|
+| 장바구니_이탈형 | fast_removal + slow_removal(명시적으로 제거함) | 365,487 | 20.62% | 장바구니 이탈 회수(Cart Recovery) — 이미 "거부" 신호가 있어 대안 상품 추천이 동일 상품 리마인더보다 적합 |
+| 장바구니_보류형(신설) | no_removal_recorded(제거 이벤트 없이 보류 중) | 1,406,964 | 79.38% | 체크아웃 완결 유도(Checkout Completion) — 거부 신호가 없어 가벼운 리마인더면 충분, 강한 프로모션은 불필요 |
+
+CLAUDE.md 17번은 원래 세그먼트 후보를 8개로 예시했으나, 문구를 삭제하지
+않고 취소선 + `[2026-08-08 정책 갱신]` 표기로 이 결정과 근거를 남기고
+9개로 갱신했다(2026-08-05 최신성 정책 갱신과 동일한 방식).
+
+### 결과
+
+- 세그먼트 9개 전부 인원 합이 22,298,361명과 정확히 일치, `장바구니_이탈형`
+  +`장바구니_보류형` 합(1,772,451명)이 lifecycle의 `장바구니_고객`과 정확히
+  일치.
+- `tests/data_quality/test_segment.py` 10개(신규 5개 포함) 전부 통과 —
+  세그먼트 9개 확인, 두 카트 세그먼트 합이 lifecycle과 일치, `cart_removal_subtype`이
+  `장바구니_보류형`에서는 항상 `no_removal_recorded`, `장바구니_이탈형`에서는
+  항상 `fast_removal`/`slow_removal`인지까지 검증.
+- 갱신 파일: `sql/marts/mart_customer_segment.sql`, `CLAUDE.md`(17번),
+  `docs/data_dictionary.md`, `reports/phase4_segment_profile.md`,
+  `scripts/build_dashboard_data.py`(SEGMENT_META에 `장바구니_보류형` 추가),
+  `app/pages/5_Segment_Explorer.py`("세그먼트 8개" → "9개" 문구),
+  `tests/unit/test_dashboard_data.py`, 대시보드 데이터(`data/dashboard/segment_profile.csv`)
+  및 스크린샷(`reports/figures/dashboard_segment_explorer.png` 등) 재생성.
+- `mart_customer_lifecycle.sql`은 이 변경과 무관 — lifecycle 8개 상태
+  분포는 그대로(재확인 완료).
+
+### 관련 문서
+
+- `sql/marts/mart_customer_segment.sql`, `sql/intermediate/int_customer_cart_behavior.sql`
+- `reports/phase4_segment_profile.md` (장바구니_이탈형/장바구니_보류형 상세)
+- `CLAUDE.md` 17번 (취소선 + 갱신 이력)

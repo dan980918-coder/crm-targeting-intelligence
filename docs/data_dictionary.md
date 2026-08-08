@@ -134,7 +134,7 @@ lazy 참조한다 (materialize하지 않음 — Phase 1 원칙: 전체를 메모
 - **목적**: 고객별 장바구니 추가/제거/전환 요약
 - **Grain**: 1행 = 1 고객 (add 또는 remove 중 하나라도 있는 고객, 2,359,888행)
 - **Primary Key**: client_id
-- **컬럼**: n_add, n_add_distinct_sku, first/last_add_ts, n_remove, n_remove_distinct_sku, first/last_remove_ts, n_add_to_buy_pairs, avg_hours_add_to_buy
+- **컬럼**: n_add, n_add_distinct_sku, first/last_add_ts, n_remove, n_remove_distinct_sku, first/last_remove_ts, n_add_to_buy_pairs, avg_hours_add_to_buy, median_seconds_add_to_remove(2026-08-08 추가 — add→remove 매칭 쌍의 간격 중앙값, 매칭되는 remove가 없으면 NULL. `장바구니_이탈형` 하위분류 근거)
 - **생성 SQL**: `sql/intermediate/int_customer_cart_behavior.sql`
 - **품질 테스트**: 행 수가 8.4 교집합/합집합 산술(2,333,463+694,391−667,966)과 일치
 - **입력**: stg_add_to_cart, stg_remove_from_cart, stg_product_buy / **출력**: Phase 3(장바구니 이탈), Phase 5
@@ -245,13 +245,14 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 - **목적**: CLAUDE.md 17번 규칙 기반 CRM 세그먼트 (mart_customer_lifecycle을 CRM 액션 단위로 재구성)
 - **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
-- **컬럼**: lifecycle_stage(원본 상태 보존), segment
-- **segment 값 8개**: `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
+- **컬럼**: lifecycle_stage(원본 상태 보존), segment, cart_removal_subtype(2026-08-08 추가 — `장바구니_이탈형`/`장바구니_보류형`에만 값 존재, 나머지 7개는 NULL. `no_removal_recorded`(→ 항상 장바구니_보류형)/`fast_removal`/`slow_removal`(→ 항상 장바구니_이탈형). 근거: `reports/phase4_segment_profile.md`)
+- **segment 값 9개**(2026-08-08 갱신, 8→9 — CLAUDE.md 17번 취소선+갱신 이력 참고): `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `장바구니_보류형`(신설), `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
 - **탐색_고객 세분화 기준**(데이터 기반, 2026-08-07 갱신): 방문 ≥10회(해당 그룹 p90, 변곡점은 아니나 상위 10% cut·과접촉 방지 근거는 유효) 또는 검색을 방문보다 먼저 함(search_first — 검색만 하거나 방문을 먼저 한 경우는 실제 전환율이 2.59~7.75%로 낮아 제외, search_first는 44.02%로 높아 채택) → `구매_직전_탐색형`(2,212,414명, 9.92%), 나머지는 `저관여_탐색형`. 근거: `docs/methodology.md` 2026-08-07 항목
+- **장바구니_고객 세분화 기준**(데이터 기반, 2026-08-08 신설 — 근거: `docs/methodology.md` 2026-08-08 항목): 제거 이벤트가 전혀 없으면(`no_removal_recorded`, 79.38%) `장바구니_보류형`, 명시적으로 제거했으면(`fast_removal`/`slow_removal`, 20.62%) `장바구니_이탈형`. 원래 하나였던 `장바구니_이탈형`(1,772,451명)의 79.38%가 실제로는 제거 이벤트가 없는데도 "이탈"로 분류돼 있던 것을 재확인 후 분리
 - **각 세그먼트의 정의/구매율/구매주기/CRM목적/추천액션/접촉우선순위/과접촉위험**: `reports/phase4_segment_profile.md`
 - **생성 SQL**: `sql/marts/mart_customer_segment.sql`
-- **품질 테스트**: `tests/data_quality/test_segment.py` — PK 유일성, 미분류 0건, 정확히 8개 세그먼트, lifecycle 상태별 인원과 정합성
-- **입력**: mart_customer_lifecycle, mart_customer_360
+- **품질 테스트**: `tests/data_quality/test_segment.py` — PK 유일성, 미분류 0건, 정확히 9개 세그먼트, lifecycle 상태별 인원과 정합성(장바구니 두 세그먼트 합=lifecycle 장바구니_고객), cart_removal_subtype-segment 매핑 일관성
+- **입력**: mart_customer_lifecycle, mart_customer_360, stg_search_query, stg_page_visit, int_customer_cart_behavior
 - **출력**: Phase 7 대시보드 Segment Explorer
 
 ### mart_customer_snapshot
