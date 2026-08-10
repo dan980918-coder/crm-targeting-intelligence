@@ -7,11 +7,33 @@ import streamlit as st
 
 DASHBOARD_DIR = Path("data/dashboard")
 
-DATA_PERIOD_NOTICE = (
-    "본 프로젝트는 2022년 6~12월 스냅샷 데이터를 사용하며, "
-    "이는 최신 고객 행동이 아닌 특정 시점의 이커머스 행동 패턴 분석임을 명시합니다. "
-    "(관측 기간: 2022-06-23 ~ 2022-12-08, 167일)"
+DATA_PERIOD_CAPTION = (
+    "📅 관측 기간: 2022-06-23 ~ 2022-12-08 (167일) — 최신 고객 행동이 아닌 "
+    "특정 시점 스냅샷"
 )
+
+
+def format_count(n) -> str:
+    """큰 숫자를 한국어 단위(만/억)로 축약 표시.
+
+    st.metric은 좁은 컬럼에서 8자리 이상 숫자를 자동 줄바꿈하지 않고 "..."로
+    잘라버린다 — 이 축약은 그 문제를 막기 위함이다. 정확한 값은 잘려서는
+    안 되므로 항상 help 파라미터 등으로 별도 표기한다(with_exact_help 참고).
+    """
+    n = float(n)
+    sign = "-" if n < 0 else ""
+    n = abs(n)
+    if n >= 100_000_000:
+        return f"{sign}{n / 100_000_000:,.1f}억"
+    if n >= 10_000:
+        return f"{sign}{n / 10_000:,.1f}만"
+    return f"{sign}{n:,.0f}"
+
+
+def with_exact_help(value, existing_help: str = "") -> str:
+    """format_count로 축약 표시할 때 st.metric의 help 툴팁에 정확한 값을 남긴다."""
+    exact = f"정확한 값: {value:,.0f}"
+    return f"{exact} — {existing_help}" if existing_help else exact
 
 
 @st.cache_data
@@ -48,4 +70,4 @@ def load_targeting_simulation() -> pd.DataFrame:
 
 
 def show_data_period_notice() -> None:
-    st.info(f"ℹ️ {DATA_PERIOD_NOTICE}")
+    st.caption(DATA_PERIOD_CAPTION)

@@ -5,7 +5,13 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.dashboard.data import load_funnel_summary, load_overview_kpis, show_data_period_notice
+from src.dashboard.data import (
+    format_count,
+    load_funnel_summary,
+    load_overview_kpis,
+    show_data_period_notice,
+    with_exact_help,
+)
 
 st.set_page_config(page_title="Overview", page_icon="📊", layout="wide")
 st.title("CRM Overview")
@@ -16,17 +22,22 @@ funnel = load_funnel_summary()
 
 st.subheader("핵심 KPI")
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("전체 관측 고객", f"{kpis['total_customers']:,.0f}")
-c2.metric("구매 고객", f"{kpis['buyers']:,.0f}", help="관측 기간 내 1회 이상 구매")
-c3.metric("반복구매 가능 고객", f"{kpis['repeat_buyers']:,.0f}", help="서로 다른 날짜에 2회 이상 구매")
-c4.metric("장바구니 고객", f"{kpis['cart_customers']:,.0f}")
+c1.metric("전체 관측 고객", format_count(kpis['total_customers']),
+          help=with_exact_help(kpis['total_customers']))
+c2.metric("구매 고객", format_count(kpis['buyers']),
+          help=with_exact_help(kpis['buyers'], "관측 기간 내 1회 이상 구매"))
+c3.metric("반복구매 가능 고객", format_count(kpis['repeat_buyers']),
+          help=with_exact_help(kpis['repeat_buyers'], "서로 다른 날짜에 2회 이상 구매"))
+c4.metric("장바구니 고객", format_count(kpis['cart_customers']),
+          help=with_exact_help(kpis['cart_customers']))
 
 c5, c6, c7 = st.columns(3)
-c5.metric("구매 비활성 위험 고객", f"{kpis['at_risk_customers']:,.0f}",
-          help="마지막 구매 후 29~60일 경과 (docs/methodology.md 데이터 기반 임계값)")
-c6.metric("비활성 고객", f"{kpis['inactive_customers']:,.0f}", help="마지막 구매 후 60일 초과 경과")
-c7.metric("최근 14일 구매 전환(최신 스냅샷)", f"{kpis['recent_converters']:,.0f}",
-          help="mart_purchase_propensity 최신 snapshot_date 기준 will_purchase_14d=1")
+c5.metric("구매 비활성 위험 고객", format_count(kpis['at_risk_customers']),
+          help=with_exact_help(kpis['at_risk_customers'], "마지막 구매 후 29~60일 경과 (docs/methodology.md 데이터 기반 임계값)"))
+c6.metric("비활성 고객", format_count(kpis['inactive_customers']),
+          help=with_exact_help(kpis['inactive_customers'], "마지막 구매 후 60일 초과 경과"))
+c7.metric("최근 14일 구매 전환(최신 스냅샷)", format_count(kpis['recent_converters']),
+          help=with_exact_help(kpis['recent_converters'], "mart_purchase_propensity 최신 snapshot_date 기준 will_purchase_14d=1"))
 
 st.caption(
     "⚠️ '구매 비활성 위험/비활성' 고객 수는 관측 종료 시점 기준 단면입니다. "

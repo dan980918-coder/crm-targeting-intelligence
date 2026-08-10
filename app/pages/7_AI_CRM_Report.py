@@ -4,7 +4,7 @@ from pathlib import Path
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.dashboard.data import show_data_period_notice
+from src.dashboard.data import format_count, show_data_period_notice, with_exact_help
 from src.llm.client import get_available_backend
 from src.llm.data_loader import build_report_input
 from src.llm.report_generator import generate_crm_report
@@ -34,7 +34,8 @@ st.caption(f"생성 방식: {output.generated_by} | 기간: {output.period_start
 st.subheader("1. Data Facts (SQL에서 확인된 사실)")
 cols = st.columns(len(output.data_facts))
 for col, fact in zip(cols, output.data_facts):
-    col.metric(fact.label, f"{fact.value:,.0f}{fact.unit}")
+    col.metric(fact.label, f"{format_count(fact.value)}{fact.unit}",
+               help=with_exact_help(fact.value))
 
 st.subheader("2. Model Predictions (모델 예측 결과)")
 for m in output.model_predictions:

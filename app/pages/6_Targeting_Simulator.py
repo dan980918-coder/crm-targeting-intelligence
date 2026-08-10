@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.dashboard.data import load_targeting_simulation, show_data_period_notice
+from src.dashboard.data import format_count, load_targeting_simulation, show_data_period_notice, with_exact_help
 
 st.set_page_config(page_title="Targeting Simulator", page_icon="🎯", layout="wide")
 st.title("CRM Targeting Simulator")
@@ -50,8 +50,9 @@ if not compare_row.empty:
     st.markdown("---")
     st.subheader("모델 vs 최근성 규칙 — 동일 Recall 달성 시 접촉 인원 비교")
     c1, c2, c3 = st.columns(3)
-    c1.metric("모델 접촉 인원", f"{r['n_selected']:,.0f}")
-    c2.metric("규칙이 동일 Recall에 필요한 인원", f"{r['customers_needed_by_rule_for_same_recall']:,.0f}")
+    c1.metric("모델 접촉 인원", format_count(r['n_selected']), help=with_exact_help(r['n_selected']))
+    c2.metric("규칙이 동일 Recall에 필요한 인원", format_count(r['customers_needed_by_rule_for_same_recall']),
+              help=with_exact_help(r['customers_needed_by_rule_for_same_recall']))
     c3.metric("접촉 인원 절감률", f"{r['contact_reduction_pct']:.2f}%")
     st.caption(
         f"→ 상위 {contact_rate}% 고객을 모델로 선정했을 때, 단순 최근성 기준보다 "

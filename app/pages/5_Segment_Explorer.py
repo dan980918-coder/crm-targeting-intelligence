@@ -5,7 +5,7 @@ import plotly.express as px
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.dashboard.data import load_segment_profile, show_data_period_notice
+from src.dashboard.data import format_count, load_segment_profile, show_data_period_notice, with_exact_help
 
 st.set_page_config(page_title="Segment Explorer", page_icon="🧩", layout="wide")
 st.title("Segment Explorer")
@@ -22,7 +22,7 @@ selected = st.selectbox("세그먼트 선택", df["segment"].tolist())
 row = df[df["segment"] == selected].iloc[0]
 
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("고객 수", f"{row['n']:,.0f}")
+c1.metric("고객 수", format_count(row['n']), help=with_exact_help(row['n']))
 c2.metric("구매율", f"{row['buy_rate']*100:.1f}%")
 c3.metric("평균 방문 횟수", f"{row['avg_visit']:.1f}")
 c4.metric("평균 구매 횟수", f"{row['avg_purchases']:.2f}")

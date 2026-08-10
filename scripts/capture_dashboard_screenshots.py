@@ -15,9 +15,11 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 PAGES = [
     ("", "dashboard_home.png"),
     ("/Overview", "dashboard_overview.png"),
+    ("/Funnel", "dashboard_funnel.png"),
     ("/Lifecycle", "dashboard_lifecycle.png"),
     ("/Segment_Explorer", "dashboard_segment_explorer.png"),
     ("/Targeting_Simulator", "dashboard_targeting_simulator.png"),
+    ("/AI_CRM_Report", "dashboard_ai_crm_report.png"),
 ]
 
 

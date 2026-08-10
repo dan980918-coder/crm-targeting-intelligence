@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.dashboard.data import load_funnel_summary, show_data_period_notice
+from src.dashboard.data import format_count, load_funnel_summary, show_data_period_notice
 
 st.set_page_config(page_title="Funnel", page_icon="🔻", layout="wide")
 st.title("고객 단위 퍼널")
@@ -39,14 +39,19 @@ st.markdown(
 """
 )
 
-col1, col2, col3, col4 = st.columns(4)
 total_buy = funnel["buy"]
 explore_cart_buy = funnel["cart_to_buy"]
 no_footprint = funnel["buy_with_no_footprint"]
-col1.metric("탐색→장바구니→구매", f"{explore_cart_buy:,.0f}",
-            f"{explore_cart_buy/total_buy*100:.1f}%")
-col2.metric("기록 없이 구매", f"{no_footprint:,.0f}",
-            f"{no_footprint/total_buy*100:.1f}%", delta_color="off")
+
+col1, col2 = st.columns(2)
+col1.metric("탐색→장바구니→구매", format_count(explore_cart_buy),
+            f"{explore_cart_buy/total_buy*100:.1f}%",
+            help=f"정확한 값: {explore_cart_buy:,.0f}")
+col2.metric("기록 없이 구매", format_count(no_footprint),
+            f"{no_footprint/total_buy*100:.1f}%", delta_color="off",
+            help=f"정확한 값: {no_footprint:,.0f}")
+
+col3, col4 = st.columns(2)
 col3.metric("탐색→장바구니 전환율", f"{funnel['explore_to_cart']/funnel['explore']*100:.2f}%")
 col4.metric("장바구니→구매 전환율", f"{funnel['cart_to_buy']/funnel['cart']*100:.2f}%")
 
