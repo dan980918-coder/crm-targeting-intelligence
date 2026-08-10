@@ -68,7 +68,7 @@ lazy 참조한다 (materialize하지 않음 — Phase 1 원칙: 전체를 메모
   |---|---|---|
   | sku | BIGINT | 상품 ID (PK) |
   | category | BIGINT | 카테고리 ID |
-  | price_bucket | BIGINT | 가격 구간 0~99 (**실제 금액 아님**, Phase 1 8.5) — 원본 컬럼명 `price`를 명시적으로 리네임 |
+  | price_bucket | BIGINT | 가격 구간 0\~99 (**실제 금액 아님**, Phase 1 8.5) — 원본 컬럼명 `price`를 명시적으로 리네임 |
   | name_embedding | VARCHAR | 16차원 양자화 임베딩 (원본 컬럼명은 `name`이나 공식 문서상 `embedding`에 해당 — Phase 1 8.2) — 리네임으로 혼동 방지 |
 - **생성 SQL**: `sql/staging/stg_product_properties.sql`
 - **입력**: `product_properties.parquet`
@@ -247,7 +247,7 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 - **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
 - **컬럼**: lifecycle_stage(원본 상태 보존), segment, cart_removal_subtype(2026-08-08 추가 — `장바구니_이탈형`/`장바구니_보류형`에만 값 존재, 나머지 7개는 NULL. `no_removal_recorded`(→ 항상 장바구니_보류형)/`fast_removal`/`slow_removal`(→ 항상 장바구니_이탈형). 근거: `reports/phase4_segment_profile.md`)
 - **segment 값 9개**(2026-08-08 갱신, 8→9 — CLAUDE.md 17번 취소선+갱신 이력 참고): `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `장바구니_보류형`(신설), `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
-- **탐색_고객 세분화 기준**(데이터 기반, 2026-08-07 갱신): 방문 ≥10회(해당 그룹 p90, 변곡점은 아니나 상위 10% cut·과접촉 방지 근거는 유효) 또는 검색을 방문보다 먼저 함(search_first — 검색만 하거나 방문을 먼저 한 경우는 실제 전환율이 2.59~7.75%로 낮아 제외, search_first는 44.02%로 높아 채택) → `구매_직전_탐색형`(2,212,414명, 9.92%), 나머지는 `저관여_탐색형`. 근거: `docs/methodology.md` 2026-08-07 항목
+- **탐색_고객 세분화 기준**(데이터 기반, 2026-08-07 갱신): 방문 ≥10회(해당 그룹 p90, 변곡점은 아니나 상위 10% cut·과접촉 방지 근거는 유효) 또는 검색을 방문보다 먼저 함(search_first — 검색만 하거나 방문을 먼저 한 경우는 실제 전환율이 2.59\~7.75%로 낮아 제외, search_first는 44.02%로 높아 채택) → `구매_직전_탐색형`(2,212,414명, 9.92%), 나머지는 `저관여_탐색형`. 근거: `docs/methodology.md` 2026-08-07 항목
 - **장바구니_고객 세분화 기준**(데이터 기반, 2026-08-08 신설 — 근거: `docs/methodology.md` 2026-08-08 항목): 제거 이벤트가 전혀 없으면(`no_removal_recorded`, 79.38%) `장바구니_보류형`, 명시적으로 제거했으면(`fast_removal`/`slow_removal`, 20.62%) `장바구니_이탈형`. 원래 하나였던 `장바구니_이탈형`(1,772,451명)의 79.38%가 실제로는 제거 이벤트가 없는데도 "이탈"로 분류돼 있던 것을 재확인 후 분리
 - **각 세그먼트의 정의/구매율/구매주기/CRM목적/추천액션/접촉우선순위/과접촉위험**: `reports/phase4_segment_profile.md`
 - **생성 SQL**: `sql/marts/mart_customer_segment.sql`
@@ -257,17 +257,17 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 ### mart_customer_snapshot
 
-- **목적**: Phase 5~6 모델링용 시점별(snapshot_date) 고객 feature·label 테이블
+- **목적**: Phase 5\~6 모델링용 시점별(snapshot_date) 고객 feature·label 테이블
 - **Grain**: 1행 = 1 고객 × 1 snapshot_date (4,196,385행) / **PK**: (client_id, snapshot_date)
 - **Feature Window**: snapshot_date 이전 28일 (CLAUDE.md 12번 예시값)
 - **Label Window**: snapshot_date 이후 14일 및 28일 **둘 다** 계산 (CLAUDE.md 18번이 두 값을 "비교 대상"으로 명시)
-- **snapshot_date**: 9개 (2022-07-21 ~ 2022-11-10, 14일 간격). 유효 범위 산출 근거:
+- **snapshot_date**: 9개 (2022-07-21 \~ 2022-11-10, 14일 간격). 유효 범위 산출 근거:
   - 하한 = 관측시작일 + 28일 (feature window 확보)
   - 상한 = 관측종료일 − 28일 (두 라벨 중 더 엄격한 28일 기준으로 우측 검열 원천 차단 — `docs/methodology.md` 2026-08-05 결정 적용)
   - 간격 14일 = 라벨 윈도우 길이와 동일하게 맞춰 인접 스냅샷의 라벨 기간 중복 최소화
 - **모집단**: snapshot_date 이전 구매 이력이 있는 고객만 (CLAUDE.md 18번 Model A 정의). Model B(활동 고객 전체)용은 별도 테이블로 분리 예정(미착수)
 - **컬럼**: last_purchase_ts, days_since_last_purchase, n_purchase_occasions_so_far, n_purchase_days_so_far, avg_purchase_gap_days_so_far, n_purchases_7d/14d/28d, n_categories_so_far, n_page_visit_28d, n_search_query_28d, n_add_to_cart_28d, n_remove_from_cart_28d, label_purchase_14d, label_purchase_28d, label_inactive_14d, label_inactive_28d
-- **검증 결과**: 라벨 비율이 스냅샷 전 구간에서 안정적(14일 라벨 5.0~6.9%, 28일 라벨 9.0~11.3%) — 우측 검열 보정 전 `mart_customer_retention`에서 봤던 "최근 코호트일수록 비율 급락" 현상이 재현되지 않음, 설계가 의도대로 작동함을 시사
+- **검증 결과**: 라벨 비율이 스냅샷 전 구간에서 안정적(14일 라벨 5.0\~6.9%, 28일 라벨 9.0\~11.3%) — 우측 검열 보정 전 `mart_customer_retention`에서 봤던 "최근 코호트일수록 비율 급락" 현상이 재현되지 않음, 설계가 의도대로 작동함을 시사
 - **생성 SQL**: `sql/marts/mart_customer_snapshot.sql`
 - **품질 테스트**: `tests/data_quality/test_snapshot.py` (8개, CLAUDE.md 31번 "Snapshot Feature·Label 분리" 테스트 포함 — 모든 snapshot_date의 라벨 기간이 실제 관측 범위 내에 있는지 검증)
 - **입력**: stg_product_buy, stg_add_to_cart, stg_remove_from_cart, stg_page_visit, stg_search_query, stg_product_properties
@@ -294,23 +294,23 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
   통일함) 또는 장바구니 이력 또는 구매 이력이 있는 고객.
   구매 이력만으로 모집단을 제한하면 이 라벨이 churn 라벨의 단순 반전이 되어
   버려 별도 모델의 의미가 없어지므로, 아직 구매 전이지만 전환 가능성이
-  있는 고객(고관여 탐색·장바구니)까지 포함했다. 순수 1~2회성 방문자(전체의
+  있는 고객(고관여 탐색·장바구니)까지 포함했다. 순수 1\~2회성 방문자(전체의
   76.89%, `저관여_탐색형`)는 전환 가능성이 낮아 실무 관행대로 제외.
 - **컬럼**: has_purchase_history, last_purchase_ts, days_since_last_purchase, n_purchase_occasions_so_far, n_page_visit_28d, n_search_query_28d, n_add_to_cart_28d, n_remove_from_cart_28d, will_purchase_14d, will_purchase_28d
 - **효율성**: 원본 `page_visit`(199M행)을 다시 스캔하지 않고 이미 만든 `int_customer_daily_activity`(46.9M행 집계)를 재사용해 계산 비용을 낮춤
-- **검증**: 라벨 비율이 스냅샷 전 구간에서 안정적(14일 1.3~2.2%, 28일 2.3~3.5%, 검열 없음), 모집단이 마지막 스냅샷 기준 4,125,793명으로 사전 추정치와 정확히 일치
+- **검증**: 라벨 비율이 스냅샷 전 구간에서 안정적(14일 1.3\~2.2%, 28일 2.3\~3.5%, 검열 없음), 모집단이 마지막 스냅샷 기준 4,125,793명으로 사전 추정치와 정확히 일치
 - **생성 SQL**: `sql/marts/mart_purchase_propensity.sql`
 - **품질 테스트**: `tests/data_quality/test_churn_propensity.py` (9개 — 두 테이블 공통, 특히 propensity가 churn_target보다 넓은 모집단을 갖는지, 비구매 고객이 실제로 포함되는지 검증)
 - **입력**: mart_customer_360, int_customer_daily_activity, int_customer_purchase_history
 
 ### mart_targeting_simulation
 
-- **목적**: CLAUDE.md 23~24번 CRM 타기팅 정책 비교 시뮬레이션 결과
+- **목적**: CLAUDE.md 23\~24번 CRM 타기팅 정책 비교 시뮬레이션 결과
 - **Grain**: 1행 = 1 모델 × 1 라벨 × 1 접촉비율 × 1 정책(72행) / **PK**: (model, label, contact_rate_pct, policy)
 - **정책**: 무작위, 최근성_규칙, (Model A만)라이프사이클_규칙, 모델_LightGBM, 모델_vs_최근성_규칙_동일recall비교
 - **컬럼**: n_total, n_selected, n_actual_captured, precision, recall, lift, customers_needed_by_rule_for_same_recall, contact_reduction_pct(비교 행에만 존재)
 - **평가 대상**: 테스트셋(out-of-sample, 2022-10-27/11-10)만 사용
-- **핵심 결과**: Model B(구매성향)는 동일 Recall 달성 시 최근성 규칙 대비 18~46% 접촉 인원 절감. Model A(구매 비활성)는 통계적으로 규칙보다 우수하나(AUC) 실무적 절감 효과는 1~2%로 제한적 — 상세 해석은 `reports/phase7_targeting_simulation.md`
+- **핵심 결과**: Model B(구매성향)는 동일 Recall 달성 시 최근성 규칙 대비 18\~46% 접촉 인원 절감. Model A(구매 비활성)는 통계적으로 규칙보다 우수하나(AUC) 실무적 절감 효과는 1\~2%로 제한적 — 상세 해석은 `reports/phase7_targeting_simulation.md`
 - **생성 SQL/스크립트**: `scripts/build_targeting_simulation.py` (Python에서 시뮬레이션 후 DuckDB 테이블로 적재)
 - **품질 테스트**: `tests/data_quality/test_targeting_simulation.py` (5개 — row count, 접촉비율-선정인원 일치, 모델 recall이 무작위보다 항상 높은지 등)
 - **입력**: mart_churn_target, mart_purchase_propensity

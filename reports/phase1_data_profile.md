@@ -1,6 +1,6 @@
 # Phase 1 데이터 프로파일 (종합)
 
-8.1~8.10 전체 검증 결과를 종합한 문서입니다. 각 항목의 세부 근거는 개별
+8.1\~8.10 전체 검증 결과를 종합한 문서입니다. 각 항목의 세부 근거는 개별
 보고서(`reports/phase1_*.md`, `reports/phase1_*.csv`)를 참조하세요.
 
 ## 1. 데이터 출처
@@ -32,11 +32,11 @@
 | product_buy / add_to_cart / remove_from_cart | client_id, timestamp, sku | BIGINT, VARCHAR, BIGINT | timestamp는 문자열이나 파싱 오류 0건 |
 | page_visit | client_id, timestamp, url | BIGINT, VARCHAR, BIGINT | url은 익명 숫자 ID, 상품과 연결 불가 |
 | search_query | client_id, timestamp, query | BIGINT, VARCHAR, VARCHAR | query는 16차원 양자화 정수 배열(임베딩), 원문 텍스트 아님 (공식 문서는 20차원이라 했으나 실측 16차원) |
-| product_properties | sku, category, price, name | BIGINT, BIGINT, BIGINT, VARCHAR | price는 0~99 구간값(실제 금액 아님), name은 16차원 임베딩(공식 문서상 컬럼명은 `embedding`) |
+| product_properties | sku, category, price, name | BIGINT, BIGINT, BIGINT, VARCHAR | price는 0\~99 구간값(실제 금액 아님), name은 16차원 임베딩(공식 문서상 컬럼명은 `embedding`) |
 
 ## 4. 타임스탬프 범위
 
-전체 관측 기간: **2022-06-23 00:10:00 ~ 2022-12-08 00:09:59** (167일, 약 6개월)
+전체 관측 기간: **2022-06-23 00:10:00 \~ 2022-12-08 00:09:59** (167일, 약 6개월)
 — 5개 이벤트 테이블 전부 동일 범위. 2023-08-05 이후 데이터는 **0.0000%**
 (전량 미충족). 정책 변경 내역은 `docs/methodology.md` 참조 — 하드 컷오프 대신
 "데이터 시점 투명 명시" 방식으로 프로젝트를 진행하기로 사용자와 합의함.
@@ -73,7 +73,7 @@
 
 ## 8. 고객별 관찰기간
 
-- 관찰기간(첫~마지막 행동) median **0일**, 66.33%가 하루만 활동
+- 관찰기간(첫\~마지막 행동) median **0일**, 66.33%가 하루만 활동
 - 좌측 검열 후보(관측 시작 7일 이내 첫 등장): 전체 5.54%, 구매자 4.45%
 - 우측 검열 후보(관측 종료 14일 이내 첫 등장): 전체 8.17%, 구매자 15.18%(138,041명)
 - → "첫 관측 고객/첫 관측 구매/관찰기간 내 행동가치" 표현 원칙 적용 필수
@@ -105,6 +105,6 @@
 - `reports/phase1_customer_overlap.md`, `phase1_customer_overlap.csv`, `phase1_customer_event_type_distribution.csv` (8.4)
 - `reports/phase1_product_match.md`, `phase1_product_match.csv` (8.5)
 - `reports/phase1_event_quality.md`, `phase1_data_quality.csv`, `phase1_outlier_candidates.csv` (8.6)
-- `reports/phase1_purchase_cart_search_behavior.md`, `phase1_behavior_summary.csv`, `phase1_top_cart_items.csv` (8.7~8.9)
+- `reports/phase1_purchase_cart_search_behavior.md`, `phase1_behavior_summary.csv`, `phase1_top_cart_items.csv` (8.7\~8.9)
 - `reports/phase1_observation_period.md`, `phase1_observation_period.csv` (8.10)
 - `docs/methodology.md`, `docs/limitations.md`, `docs/decisions_pending_review.md`

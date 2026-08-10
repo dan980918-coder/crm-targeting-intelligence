@@ -31,7 +31,7 @@ python3 scripts/build_database.py
 ```
 
 `data/processed/crm.duckdb`에 staging → intermediate → mart(11개) 전체가
-빌드된다 (약 5~10분 소요, page_visit 1.99억 행 처리 포함).
+빌드된다 (약 5\~10분 소요, page_visit 1.99억 행 처리 포함).
 
 ### 4. 모델 학습 및 타기팅 시뮬레이션 (선택)
 
