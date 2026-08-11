@@ -6,8 +6,10 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.dashboard.data import load_cohort_retention, show_data_period_notice
+from src.dashboard.theme import inject_global_css, metric, themed_layout
 
 st.set_page_config(page_title="Cohort & Retention", page_icon="📈", layout="wide")
+inject_global_css()
 st.title("코호트 & 리텐션")
 show_data_period_notice()
 
@@ -27,15 +29,17 @@ show_censored = st.checkbox(
 
 plot_df = df if show_censored else df[~df["is_28d_window_censored"]]
 
+c1, c2, c3, c4 = st.columns(4)
+metric(c1, "ncohort", "코호트 수", f"{len(plot_df)}", help="첫 관측 구매 주차 기준")
+metric(c2, "r7", "평균 7일 재구매율", f"{plot_df['repurchase_7d_rate'].mean()*100:.1f}%")
+metric(c3, "r14", "평균 14일 재구매율", f"{plot_df['repurchase_14d_rate'].mean()*100:.1f}%")
+metric(c4, "r28", "평균 28일 재구매율", f"{plot_df['repurchase_28d_rate'].mean()*100:.1f}%")
+
 fig = go.Figure()
 for col, name in [("repurchase_7d_rate", "7일"), ("repurchase_14d_rate", "14일"), ("repurchase_28d_rate", "28일")]:
     fig.add_trace(go.Scatter(x=plot_df["cohort_week"], y=plot_df[col] * 100, mode="lines+markers", name=f"{name} 재구매율"))
-fig.update_layout(
-    title="코호트별 재구매율 추이",
-    xaxis_title="코호트 주차 (첫 관측 구매 기준)",
-    yaxis_title="재구매율 (%)",
-    height=450,
-)
+fig.update_layout(xaxis_title="코호트 주차 (첫 관측 구매 기준)", yaxis_title="재구매율 (%)")
+themed_layout(fig, height=380)
 st.plotly_chart(fig, use_container_width=True)
 
 if not show_censored:
@@ -45,7 +49,7 @@ if not show_censored:
         "해당 구간의 값은 실제보다 낮게 나타남에 유의하세요."
     )
 
-st.subheader("코호트 상세 데이터")
+st.subheader("코호트 상세 데이터 (정확한 값)")
 st.dataframe(
     df[["cohort_week", "n_customers_in_cohort", "repurchase_7d_rate", "repurchase_14d_rate",
         "repurchase_28d_rate", "avg_purchase_days", "avg_category_diversity",
