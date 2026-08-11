@@ -18,6 +18,15 @@ from src.llm.report_generator import ForbiddenClaimError, generate_crm_report
 from src.llm.schemas import CRMReportInput, DataFact, ModelPredictionFact, SegmentFact
 
 
+@pytest.fixture(autouse=True)
+def _force_mock_backend(monkeypatch):
+    """client.py가 로컬 .env를 자동 로드하므로(load_dotenv), 개발자 머신에 실제
+    API 키가 있어도 이 테스트는 항상 mock 백엔드로 실행되도록 강제한다 — 위
+    모듈 docstring이 약속하는 "API 키 없이도 재현 가능"을 보장한다."""
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+
 def make_input(**overrides) -> CRMReportInput:
     defaults = dict(
         period_start=date(2022, 6, 23),

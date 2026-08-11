@@ -12,8 +12,16 @@ from __future__ import annotations
 import json
 import os
 
+from dotenv import load_dotenv
+
 from src.llm.prompts import SYSTEM_PROMPT, build_user_prompt
 from src.llm.schemas import CRMReportInput
+
+# 로컬 개발 환경에서 .env의 키를 os.environ에 로드한다(이미 gitignore 처리됨).
+# Streamlit Cloud처럼 실제 환경변수/시크릿이 이미 주입된 배포 환경에서는
+# 이 호출이 아무 효과가 없다 — override=False가 기본값이라 기존 환경변수를
+# 덮어쓰지 않는다.
+load_dotenv()
 
 DEFAULT_ANTHROPIC_MODEL = os.environ.get("CRM_LLM_MODEL", "claude-sonnet-5")
 DEFAULT_OPENAI_MODEL = os.environ.get("CRM_LLM_MODEL_OPENAI", "gpt-4o-mini")
