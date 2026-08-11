@@ -129,6 +129,17 @@ st.plotly_chart(fig, use_container_width=True)
 st.subheader("정확한 값")
 st.dataframe(
     df[["segment", "n", "buy_rate", "avg_visit", "avg_search", "avg_purchases",
-        "crm_purpose", "priority", "over_contact_risk"]],
+        "priority", "over_contact_risk", "crm_purpose"]],
     use_container_width=True, hide_index=True,
+    column_config={
+        "segment": st.column_config.TextColumn("세그먼트", width="medium"),
+        "n": st.column_config.NumberColumn("인원", width="small", format="%d"),
+        "buy_rate": st.column_config.NumberColumn("구매율", width="small", format="%.2f"),
+        "avg_visit": st.column_config.NumberColumn("평균 방문", width="small", format="%.2f"),
+        "avg_search": st.column_config.NumberColumn("평균 검색", width="small", format="%.2f"),
+        "avg_purchases": st.column_config.NumberColumn("평균 구매", width="small", format="%.2f"),
+        "priority": st.column_config.TextColumn("우선순위", width="small"),
+        "over_contact_risk": st.column_config.TextColumn("과접촉 위험", width="small"),
+        "crm_purpose": st.column_config.TextColumn("CRM 목적", width="large"),
+    },
 )
