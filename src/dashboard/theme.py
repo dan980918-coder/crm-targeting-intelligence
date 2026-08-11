@@ -170,6 +170,20 @@ div[data-testid="stAlert"] {{
     background: {BG_SUBTLE};
 }}
 
+.crm-badge {{
+    display: inline-block;
+    padding: 0.08rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-right: 0.45rem;
+    white-space: nowrap;
+    vertical-align: middle;
+}}
+.crm-badge-danger {{ background: {DANGER_SOFT}; color: {DANGER_TEXT}; }}
+.crm-badge-warning {{ background: {WARNING_SOFT}; color: {WARNING_TEXT}; }}
+.crm-badge-neutral {{ background: {BG_SUBTLE}; color: {MUTED}; }}
+
 [data-testid="stVerticalBlockBorderWrapper"] {{ border-radius: 6px !important; }}
 [class*="st-key-nav-card"] [data-testid="stVerticalBlockBorderWrapper"] > div {{
     padding: 0.65rem 0.85rem 0.7rem !important;
@@ -232,6 +246,12 @@ def metric(
     """
     with column.container(key=f"tone-{tone}-{key}", border=False):
         st.metric(label, value, delta=sub, delta_color="off", help=help, border=True)
+
+
+def badge(label: str, tone: str = "neutral", icon: str = "") -> str:
+    """색상 배지 HTML 조각을 반환한다 (unsafe_allow_html=True인 st.markdown에서 사용)."""
+    prefix = f"{icon} " if icon else ""
+    return f'<span class="crm-badge crm-badge-{tone}">{prefix}{label}</span>'
 
 
 def themed_layout(fig, height: int | None = None):
