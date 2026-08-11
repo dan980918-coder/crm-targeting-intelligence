@@ -68,8 +68,9 @@ if not compare_row.empty:
     st.subheader("모델 vs 최근성 규칙 — 동일 Recall 달성 시 접촉 인원 비교")
     c1, c2, c3 = st.columns(3)
     metric(c1, "modeln", "모델 접촉 인원", format_count(r['n_selected']), help=with_exact_help(r['n_selected']))
-    metric(c2, "rulen", "규칙 필요 인원(동일 Recall)", format_count(r['customers_needed_by_rule_for_same_recall']),
-           help=with_exact_help(r['customers_needed_by_rule_for_same_recall']))
+    metric(c2, "rulen", "규칙 필요 인원", format_count(r['customers_needed_by_rule_for_same_recall']),
+           help=with_exact_help(r['customers_needed_by_rule_for_same_recall'],
+                                 "모델과 동일한 Recall을 최근성 규칙으로 달성하려면 필요한 접촉 인원"))
     metric(c3, "reduction", "접촉 인원 절감률", f"{r['contact_reduction_pct']:.2f}%", tone="positive")
     st.caption(
         f"→ 상위 {contact_rate}% 고객을 모델로 선정했을 때, 단순 최근성 기준보다 "
