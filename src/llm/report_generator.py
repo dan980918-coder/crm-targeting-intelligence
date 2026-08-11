@@ -11,6 +11,17 @@ class ForbiddenClaimError(RuntimeError):
     """LLM 출력에 금지된 성과 표현이 포함된 경우 발생 (CLAUDE.md 29번)."""
 
 
+def escape_tildes(text: str) -> str:
+    """마크다운으로 렌더링되기 직전에만 호출한다 — JSON 저장 등 원본 데이터에는 적용하지 않는다.
+
+    이스케이프 안 된 단일 물결표(~)가 한 문장 안에 2개 이상 있으면 GFM/Streamlit
+    마크다운이 그 사이를 취소선(~~text~~)으로 잘못 해석한다(README/docs에서 이미
+    확인된 문제, acb3a6e). 정적 문서는 수기로 `\\~`를 넣어 해결했지만, LLM이 실시간
+    생성하는 문장(예: "0.96~0.98")은 그 처리를 거치지 않으므로 렌더링 직전에 통과시킨다.
+    """
+    return text.replace("~", "\\~")
+
+
 def generate_crm_report(report_input: CRMReportInput) -> CRMReportOutput:
     raw, generated_by = call_llm(report_input)
 

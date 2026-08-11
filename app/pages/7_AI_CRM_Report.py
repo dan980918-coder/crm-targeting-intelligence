@@ -8,7 +8,7 @@ from src.dashboard.data import format_count, show_data_period_notice, with_exact
 from src.dashboard.theme import inject_global_css, metric
 from src.llm.client import get_available_backend
 from src.llm.data_loader import build_report_input
-from src.llm.report_generator import generate_crm_report
+from src.llm.report_generator import escape_tildes, generate_crm_report
 
 st.set_page_config(page_title="AI CRM Report", page_icon="🤖", layout="wide")
 inject_global_css()
@@ -63,11 +63,11 @@ if not output.model_predictions:
 
 st.subheader("3. Recommended Actions (제안된 CRM 액션)")
 for a in output.recommended_actions:
-    st.markdown(f"- {a}")
+    st.markdown(f"- {escape_tildes(a)}")
 
 st.subheader("4. Testable Hypotheses (실험으로 검증해야 하는 가설)")
 for h in output.testable_hypotheses:
-    st.markdown(f"- {h}")
+    st.markdown(f"- {escape_tildes(h)}")
 
 st.markdown("---")
 st.caption(

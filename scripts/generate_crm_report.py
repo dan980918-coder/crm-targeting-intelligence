@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.llm.data_loader import build_report_input
-from src.llm.report_generator import generate_crm_report
+from src.llm.report_generator import escape_tildes, generate_crm_report
 
 REPORT_DIR = Path("reports")
 
@@ -39,11 +39,11 @@ def render_markdown(output) -> str:
 
     lines.append("\n## 3. Recommended Actions")
     for a in output.recommended_actions:
-        lines.append(f"- {a}")
+        lines.append(f"- {escape_tildes(a)}")
 
     lines.append("\n## 4. Testable Hypotheses")
     for h in output.testable_hypotheses:
-        lines.append(f"- {h}")
+        lines.append(f"- {escape_tildes(h)}")
 
     return "\n".join(lines)
 
