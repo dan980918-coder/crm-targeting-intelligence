@@ -25,15 +25,6 @@ model_choice = st.radio(
 )
 model_key = "Model_A_churn" if model_choice.startswith("Model_A") else "Model_B_propensity"
 
-if model_key == "Model_A_churn":
-    st.info(
-        "ℹ️ Model A는 **판별력(AUC 0.754)은 규칙 대비 우수**하지만, 라벨(90%+가 "
-        "'비활성' 다수 클래스) 구조상 **아래 Lift/접촉 절감률 숫자는 개선 여지가 "
-        "원천적으로 작습니다** — 라벨을 60일로 늘려 검증한 결과 Lift는 오르고 "
-        "AUC는 오히려 떨어져, 이 모델은 Lift가 아니라 AUC로 평가하는 게 맞다는 "
-        "것을 확인했습니다 (`docs/hypotheses.md` 9번)."
-    )
-
 labels_available = sorted(df[df["model"] == model_key]["label"].unique())
 label_choice = st.radio("라벨(기간) 선택", labels_available, horizontal=True)
 
@@ -70,6 +61,11 @@ st.dataframe(
                       "precision": "Precision", "recall": "Recall", "lift": "Lift"}),
     use_container_width=True, hide_index=True,
 )
+if model_key == "Model_A_churn":
+    st.caption(
+        "💡 Model A는 AUC 기준으로 평가하는 게 적절합니다 (라벨 구조상 Lift 개선은 "
+        "제한적, 근거: `docs/hypotheses.md` 9번)."
+    )
 
 if not compare_row.empty:
     r = compare_row.iloc[0]
