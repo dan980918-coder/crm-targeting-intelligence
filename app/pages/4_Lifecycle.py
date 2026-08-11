@@ -32,19 +32,20 @@ TONE_COLOR = {"neutral": BRAND, "positive": POSITIVE, "warning": WARNING, "dange
 df["tone"] = df["lifecycle_stage"].map(lambda s: TONE_BY_STAGE.get(s, "neutral"))
 
 group = df.groupby("tone")["n"].sum()
+st.caption("아래 4개 카드는 하단 8개 상태를 묶은 값입니다 — 정확한 구성은 각 ❓ 아이콘 참고.")
 c1, c2, c3, c4 = st.columns(4)
-metric(c1, "explore", "탐색 단계", format_count(group.get("neutral", 0)),
+metric(c1, "explore", "탐색군", format_count(group.get("neutral", 0)),
        sub=f"전체의 {group.get('neutral', 0)/df['n'].sum()*100:.1f}%",
-       help="탐색_고객 + 장바구니_고객")
-metric(c2, "active", "활성/성장", format_count(group.get("positive", 0)),
+       help="탐색_고객 + 장바구니_고객을 합친 값입니다")
+metric(c2, "active", "활성군", format_count(group.get("positive", 0)),
        sub=f"전체의 {group.get('positive', 0)/df['n'].sum()*100:.1f}%", tone="positive",
-       help="구매 활성/성장 — 첫_관측_구매_고객 + 활성_구매_고객 + 복귀_고객")
-metric(c3, "declining", "감소/위험", format_count(group.get("warning", 0)),
+       help="첫_관측_구매_고객 + 활성_구매_고객 + 복귀_고객을 합친 값입니다")
+metric(c3, "declining", "위험군", format_count(group.get("warning", 0)),
        sub=f"전체의 {group.get('warning', 0)/df['n'].sum()*100:.1f}%", tone="warning",
-       help="구매 감소/위험 — 구매_비활성_위험_고객 + 구매_감소_고객")
+       help="구매_비활성_위험_고객 + 구매_감소_고객을 합친 값입니다")
 metric(c4, "inactive", "비활성", format_count(group.get("danger", 0)),
        sub=f"전체의 {group.get('danger', 0)/df['n'].sum()*100:.1f}%", tone="danger",
-       help="비활성_고객")
+       help="비활성_고객 단일 상태입니다 (다른 상태와 합산 없음)")
 
 st.subheader("상태별 분포")
 plot_df = df.sort_values("n", ascending=True)
