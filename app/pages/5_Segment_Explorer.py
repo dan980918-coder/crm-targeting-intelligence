@@ -13,7 +13,7 @@ inject_global_css()
 st.title("Segment Explorer")
 show_data_period_notice()
 
-st.markdown(
+st.caption(
     "규칙 기반 세그먼트 9개입니다 (CLAUDE.md 17번 — 군집분석은 사용하지 않음, "
     "`docs/data_dictionary.md` mart_customer_segment 참고)."
 )

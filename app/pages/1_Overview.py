@@ -69,14 +69,19 @@ st.caption(
 
 st.markdown("---")
 
-col_funnel, col_table = st.columns([2, 1])
+stage_vals = [funnel["explore"], funnel["cart"], funnel["buy"]]
+pct_initial = [v / stage_vals[0] * 100 for v in stage_vals]
+funnel_text = [f"{v:,.0f}<br>초기 대비 {pi:.1f}%" for v, pi in zip(stage_vals, pct_initial)]
+
+col_funnel, col_lifecycle = st.columns([2, 1])
 with col_funnel:
     st.subheader("핵심 퍼널 (고객 단위)")
     fig = go.Figure(
         go.Funnel(
             y=["탐색", "장바구니 추가", "구매"],
-            x=[funnel["explore"], funnel["cart"], funnel["buy"]],
-            textinfo="value+percent initial",
+            x=stage_vals,
+            text=funnel_text,
+            textinfo="text",
             marker=dict(color=[BRAND, BRAND, BRAND], opacity=[1, 0.72, 0.5]),
             connector=dict(fillcolor="#EAF0FE", line=dict(color="#C7D7FB", width=1)),
         )
@@ -90,25 +95,7 @@ with col_funnel:
         "구조적으로 불가능 — Phase 3 참고)."
     )
 
-with col_table:
-    st.subheader("정확한 값")
-    stage_df = pd.DataFrame(
-        {
-            "단계": ["탐색", "장바구니 추가", "구매"],
-            "고객 수": [funnel["explore"], funnel["cart"], funnel["buy"]],
-        }
-    )
-    stage_df["초기%"] = stage_df["고객 수"] / stage_df["고객 수"].iloc[0] * 100
-    stage_df["직전%"] = [
-        100.0,
-        funnel["cart"] / funnel["explore"] * 100,
-        funnel["buy"] / funnel["cart"] * 100,
-    ]
-    stage_df.index = [""] * len(stage_df)
-    st.table(
-        stage_df.style.format({"고객 수": "{:,.0f}", "초기%": "{:.1f}%", "직전%": "{:.1f}%"})
-    )
-
+with col_lifecycle:
     st.subheader("라이프사이클 스냅샷")
     lc = load_lifecycle_distribution().sort_values("n", ascending=False)
     tone_color = {
@@ -129,3 +116,20 @@ with col_table:
     fig2.update_xaxes(visible=False)
     st.plotly_chart(fig2, use_container_width=True)
     st.caption("자세한 정의·근거는 Lifecycle 페이지 참고.")
+
+st.subheader("정확한 값")
+stage_df = pd.DataFrame(
+    {"단계": ["탐색", "장바구니 추가", "구매"], "고객 수": stage_vals,
+     "초기%": pct_initial,
+     "직전%": [100.0, funnel["cart"] / funnel["explore"] * 100, funnel["buy"] / funnel["cart"] * 100]}
+)
+st.dataframe(
+    stage_df.style.format({"고객 수": "{:,.0f}", "초기%": "{:.1f}%", "직전%": "{:.1f}%"}),
+    use_container_width=True, hide_index=True,
+    column_config={
+        "단계": st.column_config.TextColumn(width="small"),
+        "고객 수": st.column_config.TextColumn(width="medium"),
+        "초기%": st.column_config.TextColumn(width="small"),
+        "직전%": st.column_config.TextColumn(width="small"),
+    },
+)

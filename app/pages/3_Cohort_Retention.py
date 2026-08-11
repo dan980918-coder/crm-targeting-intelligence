@@ -13,10 +13,7 @@ inject_global_css()
 st.title("코호트 & 리텐션")
 show_data_period_notice()
 
-st.markdown(
-    "가입일이 없어 **첫 관측 구매 주차**를 코호트 기준으로 사용합니다 "
-    "(CLAUDE.md 14번 고정 정의)."
-)
+st.caption("가입일이 없어 첫 관측 구매 주차를 코호트 기준으로 사용합니다 (CLAUDE.md 14번 고정 정의).")
 
 df = load_cohort_retention()
 
@@ -31,9 +28,9 @@ plot_df = df if show_censored else df[~df["is_28d_window_censored"]]
 
 c1, c2, c3, c4 = st.columns(4)
 metric(c1, "ncohort", "코호트 수", f"{len(plot_df)}", help="첫 관측 구매 주차 기준")
-metric(c2, "r7", "평균 7일 재구매율", f"{plot_df['repurchase_7d_rate'].mean()*100:.1f}%")
-metric(c3, "r14", "평균 14일 재구매율", f"{plot_df['repurchase_14d_rate'].mean()*100:.1f}%")
-metric(c4, "r28", "평균 28일 재구매율", f"{plot_df['repurchase_28d_rate'].mean()*100:.1f}%")
+metric(c2, "r7", "7일 재구매", f"{plot_df['repurchase_7d_rate'].mean()*100:.1f}%", help="코호트 평균 7일 재구매율")
+metric(c3, "r14", "14일 재구매", f"{plot_df['repurchase_14d_rate'].mean()*100:.1f}%", help="코호트 평균 14일 재구매율")
+metric(c4, "r28", "28일 재구매", f"{plot_df['repurchase_28d_rate'].mean()*100:.1f}%", help="코호트 평균 28일 재구매율")
 
 fig = go.Figure()
 for col, name in [("repurchase_7d_rate", "7일"), ("repurchase_14d_rate", "14일"), ("repurchase_28d_rate", "28일")]:
@@ -50,9 +47,13 @@ if not show_censored:
     )
 
 st.subheader("코호트 상세 데이터 (정확한 값)")
-st.dataframe(
-    df[["cohort_week", "n_customers_in_cohort", "repurchase_7d_rate", "repurchase_14d_rate",
-        "repurchase_28d_rate", "avg_purchase_days", "avg_category_diversity",
-        "is_7d_window_censored", "is_14d_window_censored", "is_28d_window_censored"]],
-    use_container_width=True,
-)
+core_cols = ["cohort_week", "n_customers_in_cohort", "repurchase_7d_rate",
+             "repurchase_14d_rate", "repurchase_28d_rate", "avg_purchase_days"]
+st.dataframe(df[core_cols], use_container_width=True, hide_index=True)
+
+with st.expander("전체 컬럼 보기 (검열 플래그·카테고리 다양성 포함)"):
+    st.dataframe(
+        df[core_cols + ["avg_category_diversity", "is_7d_window_censored",
+                         "is_14d_window_censored", "is_28d_window_censored"]],
+        use_container_width=True, hide_index=True,
+    )

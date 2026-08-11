@@ -23,9 +23,9 @@ def build_report_input(contact_rate_pct: int = 10) -> CRMReportInput:
     kpi = dict(zip(kpi_df["metric"], kpi_df["value"]))
 
     data_facts = [
-        DataFact(label="전체 관측 고객", value=kpi["total_customers"], unit="명"),
+        DataFact(label="전체 고객", value=kpi["total_customers"], unit="명"),
         DataFact(label="구매 고객", value=kpi["buyers"], unit="명"),
-        DataFact(label="구매 비활성 위험 고객", value=kpi["at_risk_customers"], unit="명"),
+        DataFact(label="비활성 위험 고객", value=kpi["at_risk_customers"], unit="명"),
         DataFact(label="비활성 고객", value=kpi["inactive_customers"], unit="명"),
     ]
 

@@ -42,10 +42,15 @@ def _tone_for_fact(label: str) -> str:
 
 
 st.subheader("1. Data Facts (SQL에서 확인된 사실)")
-cols = st.columns(len(output.data_facts))
-for i, (col, fact) in enumerate(zip(cols, output.data_facts)):
-    metric(col, f"fact{i}", fact.label, f"{format_count(fact.value)}{fact.unit}",
-           tone=_tone_for_fact(fact.label), help=with_exact_help(fact.value))
+# 4열 한 줄 배치는 좁은 화면(~1024px)에서 라벨·값이 잘려 2열씩 묶어 배치한다
+# (Overview 페이지와 동일한 근거).
+facts = output.data_facts
+for row_start in range(0, len(facts), 2):
+    row_facts = facts[row_start:row_start + 2]
+    row_cols = st.columns(2)
+    for i, (col, fact) in enumerate(zip(row_cols, row_facts)):
+        metric(col, f"fact{row_start+i}", fact.label, f"{format_count(fact.value)}{fact.unit}",
+               tone=_tone_for_fact(fact.label), help=with_exact_help(fact.value))
 
 st.subheader("2. Model Predictions (모델 예측 결과)")
 for m in output.model_predictions:
