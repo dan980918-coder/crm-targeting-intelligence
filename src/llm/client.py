@@ -27,18 +27,42 @@ def get_available_backend() -> str:
     return "mock"
 
 
+def _extract_json_text(raw_text: str) -> dict:
+    """모델이 지시를 어기고 ```json 코드펜스로 감싸서 응답하는 경우까지 처리."""
+    text = raw_text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else text
+        if text.endswith("```"):
+            text = text.rsplit("```", 1)[0]
+        text = text.strip()
+    return json.loads(text)
+
+
 def _call_anthropic(report_input: CRMReportInput) -> dict:
     import anthropic
 
     client = anthropic.Anthropic()
     message = client.messages.create(
         model=DEFAULT_ANTHROPIC_MODEL,
-        max_tokens=1024,
+        max_tokens=2048,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": build_user_prompt(report_input)}],
+        thinking={"type": "disabled"},
     )
-    text = message.content[0].text
-    return json.loads(text)
+    # content[0]을 무조건 텍스트 블록으로 가정하면 안 됨 — 확장 사고(thinking)를
+    # 지원하는 모델은 ThinkingBlock(.text 없음, .thinking만 있음)이 content[0]에
+    # 먼저 올 수 있다(실제로 재현 확인: thinking 토큰이 max_tokens 예산을 먹어
+    # JSON 응답이 중간에 잘리는 문제로 이어졌음). 이 작업은 이미 계산된 사실을
+    # JSON으로 재구성하는 결정적 포맷팅 작업이라 thinking이 필요 없으므로 명시적으로
+    # 끈다 — max_tokens 전량이 실제 출력에 쓰이도록. type=="text"인 블록만 찾아 이어 붙인다.
+    text_blocks = [block.text for block in message.content if getattr(block, "type", None) == "text"]
+    if not text_blocks:
+        block_types = [getattr(block, "type", type(block).__name__) for block in message.content]
+        raise RuntimeError(
+            f"Anthropic 응답에 텍스트 블록이 없습니다 (content block types: {block_types}, "
+            f"stop_reason={message.stop_reason!r}) — 모델/파라미터 설정을 확인하세요."
+        )
+    return _extract_json_text("".join(text_blocks))
 
 
 def _call_openai(report_input: CRMReportInput) -> dict:
