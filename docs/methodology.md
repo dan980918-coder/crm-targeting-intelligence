@@ -462,3 +462,32 @@ AUC/Lift가 아주 미세하게(둘 다 -0.0016) 낮아졌다 — 저의도 고�
 - `sql/marts/mart_purchase_propensity.sql`
 - `docs/methodology.md` 2026-08-07 "`구매_직전_탐색형` 세분화 기준 재조정" 항목 (search_first 원 출처)
 - `reports/phase6_model_b_results.csv`, `reports/phase6_model_b_feature_importance.csv`
+
+## 2026-08-11 — Segment Explorer "오늘의 액션 리스트" 2차 정렬 기준: 인원수 → 과접촉 위험
+
+### 배경
+
+Segment Explorer 페이지에 접촉 우선순위(`priority`) 순 액션 리스트를 추가했다.
+`priority`는 5단계뿐이라 동일 등급(예: "높음") 안에 세그먼트 6개가 묶이는데,
+최초 구현은 이 동률을 인원수(n) 내림차순으로 풀었다 — 근거 없는 UI 구현
+선택이었다(`reports/phase4_segment_profile.md`는 동일 등급 내 순서를 규정하지
+않음).
+
+### 결정
+
+2차 정렬 기준을 인원수 내림차순에서 `over_contact_risk` 오름차순(안전한
+순서: 매우 낮음 → 낮음 → 낮음\~중간 → 중간 → 높음 → 매우 높음)으로 변경했다.
+CRM 담당자가 리스트 상단부터 순서대로 접촉을 검토한다고 가정하면, 동일
+우선순위 안에서는 "인원이 많은 대상"보다 "접촉했을 때 부작용(수신거부·이탈
+가속) 위험이 낮은 대상"부터 보여주는 편이 실무적으로 더 안전한 기본값이다.
+
+### 유의사항
+
+`priority`·`over_contact_risk` 모두 실측 접촉 이력이 아니라 Phase 4 설계
+시점의 정성적 판단이므로(위 2026-08-08 항목, `reports/phase4_segment_profile.md`
+참고), 이 2차 정렬도 "검증된 최적 순서"가 아니라 두 정성적 판단을 조합한
+표시 순서일 뿐이다.
+
+### 관련 코드
+
+- `app/pages/5_Segment_Explorer.py`의 `OVER_CONTACT_RANK` 딕셔너리, 정렬 로직

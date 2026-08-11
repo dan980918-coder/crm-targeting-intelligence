@@ -41,6 +41,10 @@ OVER_CONTACT_ICON = {
     "매우 높음": "🔴", "높음": "🟠", "중간": "🟡",
     "낮음~중간": "🟡", "낮음": "🟢", "매우 낮음": "🟢",
 }
+# 동일 우선순위 티어 내 2차 정렬용 순위(낮을수록 안전) — 안전하게 접촉 가능한
+# 대상부터 보여주는 게 실무적으로 더 말이 된다는 사용자 판단에 따라, 인원수(n)
+# 내림차순 대신 이 기준을 사용한다(2026-08-11, docs/methodology.md 참고).
+OVER_CONTACT_RANK = {"매우 낮음": 1, "낮음": 2, "낮음~중간": 3, "중간": 4, "높음": 5, "매우 높음": 6}
 OVER_CONTACT_BG = {
     "매우 높음": "#FEF2F2", "높음": "#FFF7ED", "중간": "#FFF7ED",
     "낮음~중간": "#FFFFFF", "낮음": "#F0FDF4", "매우 낮음": "#F0FDF4",
@@ -54,7 +58,10 @@ st.caption(
 
 action_df = df.copy()
 action_df["priority_rank"] = action_df["priority"].map(PRIORITY_RANK).fillna(0)
-action_df = action_df.sort_values(["priority_rank", "n"], ascending=[False, False]).reset_index(drop=True)
+action_df["over_contact_rank"] = action_df["over_contact_risk"].map(OVER_CONTACT_RANK).fillna(99)
+action_df = action_df.sort_values(
+    ["priority_rank", "over_contact_rank"], ascending=[False, True]
+).reset_index(drop=True)
 action_df.index = action_df.index + 1
 
 action_df["과접촉 위험"] = action_df["over_contact_risk"].map(
