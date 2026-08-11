@@ -55,7 +55,11 @@ _GLOBAL_CSS = f"""
 <style>
 @import url('{_FONT_CSS_URL}');
 
-html, body, [class*="st-emotion"] {{
+/* [data-testid="stIconMaterial"]는 Streamlit이 Material Symbols 폰트의 리게처
+   (예: "keyboard_double_arrow_left" 텍스트 → 화살표 글리프)로 렌더링하는
+   아이콘이다. 이 규칙에 포함시키면 리게처가 깨져 아이콘 대신 아이콘 이름
+   텍스트가 그대로 노출된다(사이드바 접기 버튼 등) — 반드시 제외해야 한다. */
+html, body, [class*="st-emotion"]:not([data-testid="stIconMaterial"]) {{
     font-family: {FONT_FAMILY} !important;
 }}
 
