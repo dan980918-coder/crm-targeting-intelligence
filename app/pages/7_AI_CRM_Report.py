@@ -5,11 +5,13 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.dashboard.data import format_count, show_data_period_notice, with_exact_help
+from src.dashboard.theme import inject_global_css, metric
 from src.llm.client import get_available_backend
 from src.llm.data_loader import build_report_input
 from src.llm.report_generator import generate_crm_report
 
 st.set_page_config(page_title="AI CRM Report", page_icon="🤖", layout="wide")
+inject_global_css()
 st.title("AI CRM Report")
 show_data_period_notice()
 
@@ -31,11 +33,19 @@ output = generate_crm_report(report_input)
 
 st.caption(f"생성 방식: {output.generated_by} | 기간: {output.period_start} ~ {output.period_end}")
 
+def _tone_for_fact(label: str) -> str:
+    if "위험" in label:
+        return "warning"
+    if "비활성" in label:
+        return "danger"
+    return "neutral"
+
+
 st.subheader("1. Data Facts (SQL에서 확인된 사실)")
 cols = st.columns(len(output.data_facts))
-for col, fact in zip(cols, output.data_facts):
-    col.metric(fact.label, f"{format_count(fact.value)}{fact.unit}",
-               help=with_exact_help(fact.value))
+for i, (col, fact) in enumerate(zip(cols, output.data_facts)):
+    metric(col, f"fact{i}", fact.label, f"{format_count(fact.value)}{fact.unit}",
+           tone=_tone_for_fact(fact.label), help=with_exact_help(fact.value))
 
 st.subheader("2. Model Predictions (모델 예측 결과)")
 for m in output.model_predictions:
