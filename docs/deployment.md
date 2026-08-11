@@ -2,10 +2,39 @@
 
 ## 현재 상태
 
-**이 프로젝트는 현재 로컬 실행만 지원하며, 어떤 클라우드 서비스에도 배포되지
-않았다.** Streamlit Community Cloud 등에 배포하는 것은 저장소를 외부에
-공개하는 행위라 사용자 승인 없이 진행하지 않는다 — 배포를 원하면 별도로
-요청할 것.
+**Streamlit Community Cloud에 배포되어 있다.**
+
+- 배포 URL: https://crm-targeting-intelligence-jydu6dct3hhzdprekfzz3k.streamlit.app
+- 엔트리포인트: `app/Home.py`
+- 배포된 앱은 `data/dashboard/*.csv`(약 15KB, 사전 집계된 소용량 파일)만
+  읽는다(`src/dashboard/data.py` 참고) — 원본 데이터·`data/processed/*.duckdb`
+  (3GB+, gitignore 대상)는 배포 환경에 포함하지 않는다(CLAUDE.md 33번).
+
+## Streamlit Community Cloud 배포 방법 (GitHub 연동)
+
+1. https://share.streamlit.io 에서 GitHub 계정으로 로그인
+2. "New app" → 이 저장소(`dan980918-coder/crm-targeting-intelligence`)와
+   브랜치(`main`), 엔트리포인트(`app/Home.py`)를 지정
+3. Deploy 클릭 — `requirements.txt` 기준으로 의존성을 자동 설치하고,
+   `.streamlit/config.toml`의 테마 설정을 그대로 적용해 빌드한다
+4. 이후 `main` 브랜치에 push할 때마다 자동으로 재배포된다(수동 재배포 불필요,
+   보통 1\~2분 소요)
+
+## Secrets 설정 (선택 — LLM API 키)
+
+AI CRM Report 페이지는 API 키 없이도 mock 백엔드로 동작하므로 필수는 아니다.
+실제 LLM 호출을 쓰려면 Streamlit Cloud 앱 관리 화면의 "Settings → Secrets"에
+로컬 `.env`와 동일한 키를 TOML 형식으로 추가한다:
+
+```toml
+ANTHROPIC_API_KEY = "sk-ant-..."
+# 또는
+OPENAI_API_KEY = "sk-..."
+```
+
+`src/llm/client.py`의 `get_available_backend()`가 이 값을 자동으로 감지해
+mock → 실제 LLM 백엔드로 전환한다. API 키는 절대 저장소에 커밋하지 않는다
+(CLAUDE.md 33번, `.gitignore`의 `.env*`).
 
 ## 로컬 실행 순서
 
@@ -66,10 +95,3 @@ python3 scripts/generate_crm_report.py
 ```bash
 pytest tests/ -q
 ```
-
-## 향후 클라우드 배포를 고려한다면
-
-- Streamlit Community Cloud: `app/Home.py`를 엔트리포인트로 지정, `data/dashboard/*.csv`
-  (약 15KB, 이미 집계된 소용량 파일)만 포함하면 됨 — `data/processed/*.duckdb`
-  (3GB+, gitignore 대상)는 배포에 불필요.
-- 원본 데이터·DuckDB 파일은 배포 환경에도 포함하지 않는다 (CLAUDE.md 33번).
