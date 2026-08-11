@@ -48,12 +48,34 @@ if not show_censored:
 
 st.subheader("코호트 상세 데이터 (정확한 값)")
 core_cols = ["cohort_week", "n_customers_in_cohort", "repurchase_7d_rate",
-             "repurchase_14d_rate", "repurchase_28d_rate", "avg_purchase_days"]
-st.dataframe(df[core_cols], use_container_width=True, hide_index=True)
+             "repurchase_14d_rate", "repurchase_28d_rate"]
+display_df = df.copy()
+display_df["cohort_week"] = display_df["cohort_week"].dt.strftime("%Y-%m-%d")
 
-with st.expander("전체 컬럼 보기 (검열 플래그·카테고리 다양성 포함)"):
+RATE_COL_CONFIG = {
+    "cohort_week": st.column_config.TextColumn("코호트 주차", width="small"),
+    "n_customers_in_cohort": st.column_config.NumberColumn("인원", width="small", format="%d"),
+    "repurchase_7d_rate": st.column_config.NumberColumn("7일", width="small", format="%.1f%%"),
+    "repurchase_14d_rate": st.column_config.NumberColumn("14일", width="small", format="%.1f%%"),
+    "repurchase_28d_rate": st.column_config.NumberColumn("28일", width="small", format="%.1f%%"),
+    "avg_purchase_days": st.column_config.NumberColumn("평균 구매간격(일)", width="small", format="%.1f"),
+    "avg_category_diversity": st.column_config.NumberColumn("카테고리 다양성", width="small", format="%.2f"),
+}
+# repurchase_*_rate는 원본이 0~1 비율이라 %.1f%% 포맷이 그대로 곱해주지 않으므로 %로 스케일링
+for c in ["repurchase_7d_rate", "repurchase_14d_rate", "repurchase_28d_rate"]:
+    display_df[c] = display_df[c] * 100
+
+st.dataframe(
+    display_df[core_cols], use_container_width=True, hide_index=True,
+    column_config=RATE_COL_CONFIG,
+)
+st.caption("가로 스크롤 없이 핵심 5개 컬럼만 표시합니다 — 나머지는 아래 '전체 컬럼 보기'에서 확인하세요.")
+
+with st.expander("전체 컬럼 보기 (평균 구매간격·검열 플래그·카테고리 다양성 포함)"):
     st.dataframe(
-        df[core_cols + ["avg_category_diversity", "is_7d_window_censored",
-                         "is_14d_window_censored", "is_28d_window_censored"]],
+        display_df[core_cols + ["avg_purchase_days", "avg_category_diversity",
+                                 "is_7d_window_censored", "is_14d_window_censored",
+                                 "is_28d_window_censored"]],
         use_container_width=True, hide_index=True,
+        column_config=RATE_COL_CONFIG,
     )
