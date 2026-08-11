@@ -36,25 +36,29 @@ funnel = load_funnel_summary()
 st.subheader("핵심 KPI")
 total = kpis["total_customers"]
 buyers = kpis["buyers"]
-cols = st.columns(7)
-metric(cols[0], "total", "전체 고객", format_count(total),
+# 7열 한 줄 배치는 좁은 화면(~1200px, 흔한 노트북 해상도)에서 라벨·값이 잘려
+# 4+3 분할로 되돌렸다 — 밀도보다 안 잘리는 게 우선이라는 판단.
+r1 = st.columns(4)
+metric(r1[0], "total", "전체 고객", format_count(total),
        help=with_exact_help(total, "전체 관측 고객"))
-metric(cols[1], "buyers", "구매 고객", format_count(buyers),
+metric(r1[1], "buyers", "구매 고객", format_count(buyers),
        sub=f"전체의 {buyers/total*100:.1f}%",
        help=with_exact_help(buyers, "관측 기간 내 1회 이상 구매"))
-metric(cols[2], "repeat", "반복구매", format_count(kpis["repeat_buyers"]),
+metric(r1[2], "repeat", "반복구매", format_count(kpis["repeat_buyers"]),
        sub=f"구매 고객의 {kpis['repeat_buyers']/buyers*100:.1f}%", tone="positive",
        help=with_exact_help(kpis["repeat_buyers"], "반복구매 가능 고객 — 서로 다른 날짜에 2회 이상 구매"))
-metric(cols[3], "cart", "장바구니", format_count(kpis["cart_customers"]),
+metric(r1[3], "cart", "장바구니", format_count(kpis["cart_customers"]),
        sub=f"전체의 {kpis['cart_customers']/total*100:.1f}%",
        help=with_exact_help(kpis["cart_customers"], "장바구니 고객"))
-metric(cols[4], "atrisk", "비활성 위험", format_count(kpis["at_risk_customers"]),
+
+r2 = st.columns(3)
+metric(r2[0], "atrisk", "비활성 위험", format_count(kpis["at_risk_customers"]),
        sub=f"구매 고객의 {kpis['at_risk_customers']/buyers*100:.1f}%", tone="warning",
        help=with_exact_help(kpis["at_risk_customers"], "마지막 구매 후 29~60일 경과 (docs/methodology.md 데이터 기반 임계값)"))
-metric(cols[5], "inactive", "비활성 고객", format_count(kpis["inactive_customers"]),
+metric(r2[1], "inactive", "비활성 고객", format_count(kpis["inactive_customers"]),
        sub=f"구매 고객의 {kpis['inactive_customers']/buyers*100:.1f}%", tone="danger",
        help=with_exact_help(kpis["inactive_customers"], "마지막 구매 후 60일 초과 경과"))
-metric(cols[6], "recent", "최근 전환", format_count(kpis["recent_converters"]),
+metric(r2[2], "recent", "최근 전환", format_count(kpis["recent_converters"]),
        tone="positive",
        help=with_exact_help(kpis["recent_converters"], "최근 14일 구매 전환(최신 스냅샷) — mart_purchase_propensity 최신 snapshot_date 기준 will_purchase_14d=1"))
 
@@ -121,7 +125,7 @@ with col_table:
         labels={"n": "", "lifecycle_stage": ""},
     )
     fig2.update_traces(marker_color=lc.sort_values("n")["color"])
-    themed_layout(fig2, height=230)
+    themed_layout(fig2, height=270)
     fig2.update_xaxes(visible=False)
     st.plotly_chart(fig2, use_container_width=True)
     st.caption("자세한 정의·근거는 Lifecycle 페이지 참고.")

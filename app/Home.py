@@ -14,9 +14,10 @@ st.title("Customer Lifecycle & CRM Targeting Intelligence")
 
 st.markdown(
     """
-모든 고객에게 동일한 CRM 액션을 적용하는 대신, 고객의 탐색·장바구니·구매
-행동을 이용해 **재활성화 대상**과 **구매 유도 대상**을 우선 선정하는
-분석 시스템입니다.
+이커머스에서 CRM에 쓸 수 있는 자원은 한정돼 있는데, 모든 고객에게 똑같이
+메시지를 보내는 게 최선일까요? 고객의 탐색·장바구니·구매 행동을 보고,
+어떤 고객에게 재활성화 메시지를, 어떤 고객에게 구매 유도 메시지를 먼저
+보낼지 타기팅 우선순위를 매기는 분석 시스템입니다.
 """
 )
 
@@ -32,7 +33,7 @@ PAGES = [
     ("🔄", "Lifecycle", "고객 라이프사이클 8개 상태 분포"),
     ("🧩", "Segment Explorer", "CRM 세그먼트별 특성과 추천 액션"),
     ("🎯", "Targeting Simulator", "접촉 비율별 모델 vs 규칙 기반 타기팅 비교"),
-    ("🤖", "AI CRM Report", "SQL 집계 기반 Data Facts/Model Predictions + LLM이 생성한 "
+    ("📝", "AI CRM Report", "SQL 집계 기반 Data Facts/Model Predictions + LLM이 생성한 "
      "Recommended Actions/Testable Hypotheses (API 키 없으면 mock 백엔드로 동작)"),
 ]
 
