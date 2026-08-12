@@ -2,7 +2,7 @@
 
 ---
 
-## 2026-08-05 — 상품 단위 퍼널 불가 확정 → 프로젝트 스코프를 "고객 단위 CRM 타기팅"으로 한정
+## 상품 단위 퍼널 불가 확정 → 프로젝트 스코프를 "고객 단위 CRM 타기팅"으로 한정
 
 Phase 1 8.9(페이지 방문과 검색 검사)에서 `page_visit.url`이 공식 문서와 실제
 데이터 양쪽에서 "어떤 상품이 표시됐는지 알 수 없는" 익명 숫자 ID로 확인됐고,
@@ -24,7 +24,7 @@ Phase 1 8.9(페이지 방문과 검색 검사)에서 `page_visit.url`이 공식 
 
 ---
 
-## 2026-08-05 — 프로젝트 주제 확정(A안) 및 우측 검열(right-censoring) 고객 처리 방침
+## 프로젝트 주제 확정(A안) 및 우측 검열(right-censoring) 고객 처리 방침
 
 ### 프로젝트 주제 확정
 
@@ -103,7 +103,7 @@ PROJECT_GUIDELINES.md 12번(`mart_customer_snapshot`의 Feature Window/Label Win
 
 ---
 
-## 2026-08-05 — 라이프사이클 상태 임계값 확정 (14일/28일/60일)
+## 라이프사이클 상태 임계값 확정 (14일/28일/60일)
 
 ### 배경
 
@@ -152,7 +152,7 @@ PROJECT_GUIDELINES.md 16번 후보 9개 중 "반복구매 고객"과 "활성 구
 
 ---
 
-## 2026-08-07 — `구매_직전_탐색형` 세분화 기준 재조정: 검색 단독 신호 → 검색-선행(search_first) 신호
+## `구매_직전_탐색형` 세분화 기준 재조정: 검색 단독 신호 → 검색-선행(search_first) 신호
 
 ### 배경
 
@@ -230,11 +230,11 @@ OR (검색 이벤트가 존재 AND 방문 이벤트가 존재 AND 첫 검색 시
 ### 관련 문서
 
 - `sql/marts/mart_customer_segment.sql`
-- `docs/methodology.md` 2026-08-05 "라이프사이클 상태 임계값 확정" 항목 (방문 10회 p90 근거의 출처)
+- `docs/methodology.md` "라이프사이클 상태 임계값 확정" 항목 (방문 10회 p90 근거의 출처)
 
 ---
 
-## 2026-08-08 — `장바구니_이탈형`을 `장바구니_이탈형`/`장바구니_보류형`으로 분리 (8 → 9개 세그먼트)
+## `장바구니_이탈형`을 `장바구니_이탈형`/`장바구니_보류형`으로 분리 (8 → 9개 세그먼트)
 
 ### 배경
 
@@ -303,7 +303,7 @@ PROJECT_GUIDELINES.md의 기존 관례를 따라 9개로 갱신했다.
 
 ---
 
-## 2026-08-08 — `avg_category_repurchase_rate`를 Model A/B feature로 추가 + Phase 3 리포트 정정("계산 불가" → 실제 계산)
+## `avg_category_repurchase_rate`를 Model A/B feature로 추가 + Phase 3 리포트 정정("계산 불가" → 실제 계산)
 
 ### 배경
 
@@ -370,9 +370,8 @@ A(churn)·Model B(propensity) 양쪽에 추가했다.
   메모리 환경에서 OOM이 발생해 별도 테이블로 분리했다 — 계산을 한 번만
   하고 `mart_customer_snapshot`(Model A)·`mart_purchase_propensity`(Model
   B) 양쪽이 가벼운 LEFT JOIN으로 재사용하는 구조가 됐다(이 OOM 경험은
-  이후 2026-08-08 `mart_purchase_propensity` search_first 통일 작업에서
-  동일한 TEMP 테이블 분리 패턴을 처음부터 적용하는 선례가 됐다 — 아래
-  항목 참고).
+  이후 `mart_purchase_propensity` search_first 통일 작업에서 동일한 TEMP
+  테이블 분리 패턴을 처음부터 적용하는 선례가 됐다 — 아래 항목 참고).
 - **셀프 포함 편향**: 카테고리 통계에 그 고객 자신의 과거 구매 occasion도
   포함되지만, 최소 표본이 100명이므로 한 고객의 기여는 통계치를 최대
   1%p만 흔드는 수준으로 판단해 leave-one-out까지는 적용하지 않았다(합리적
@@ -412,14 +411,15 @@ A(churn)·Model B(propensity) 양쪽에 추가했다.
 
 ---
 
-## 2026-08-08 — `mart_purchase_propensity` 모집단 조건을 search_first로 통일
+## `mart_purchase_propensity` 모집단 조건을 search_first로 통일
 
 ### 배경
 
 `mart_customer_segment.sql`의 `구매_직전_탐색형` 분류 기준은 이미 "검색
-1회 이상"에서 search_first(검색이 방문보다 먼저)로 교체됐는데(2026-08-07
-항목 참고 — search_only 7.75% vs search_first 44.02% 전환율 차이가
-근거), `mart_purchase_propensity.sql`의 Model B 모집단 조건은 이 교체를
+1회 이상"에서 search_first(검색이 방문보다 먼저)로 교체됐는데(위
+"`구매_직전_탐색형` 세분화 기준 재조정" 항목 참고 — search_only 7.75%
+vs search_first 44.02% 전환율 차이가 근거), `mart_purchase_propensity.sql`의
+Model B 모집단 조건은 이 교체를
 반영받지 못한 채 여전히 "검색 1회 이상"(`n_search_query >= 1` /
 `cum_search >= 1`)을 쓰고 있었다. 두 mart가 JOIN으로 연결된 게 아니라
 같은 판단 로직을 각자 독립적으로 구현했기 때문에 한쪽만 갱신되고 다른
@@ -439,8 +439,8 @@ snapshot_date 기준으로 다시 걸러짐).
 구현상 이 계산(첫 검색/첫 방문 시각)은 `stg_search_query`/`stg_page_visit`
 원본을 다시 스캔해야 하는데, 기존 `activity_before`(46.9M행
 `int_customer_daily_activity` 기반)의 무거운 조인과 한 쿼리 플랜에
-합치면 다시 OOM이 날 수 있어(2026-08-08 `avg_category_repurchase_rate`
-추가 때 이미 겪은 문제), `tmp_candidate_ids`라는 별도 TEMP 테이블로
+합치면 다시 OOM이 날 수 있어(위 `avg_category_repurchase_rate` 추가 때
+이미 겪은 문제), `tmp_candidate_ids`라는 별도 TEMP 테이블로
 먼저 고정한 뒤 가볍게 JOIN하는 방식을 처음부터 적용했다.
 
 ### 결과
@@ -480,10 +480,10 @@ AUC/Lift가 아주 미세하게(둘 다 -0.0016) 낮아졌다 — 저의도 고�
 ### 관련 문서
 
 - `sql/marts/mart_purchase_propensity.sql`
-- `docs/methodology.md` 2026-08-07 "`구매_직전_탐색형` 세분화 기준 재조정" 항목 (search_first 원 출처)
+- `docs/methodology.md` "`구매_직전_탐색형` 세분화 기준 재조정" 항목 (search_first 원 출처)
 - `reports/phase6_model_b_results.csv`, `reports/phase6_model_b_feature_importance.csv`
 
-## 2026-08-11 — Segment Explorer "오늘의 액션 리스트" 2차 정렬 기준: 인원수 → 과접촉 위험
+## Segment Explorer "오늘의 액션 리스트" 2차 정렬 기준: 인원수 → 과접촉 위험
 
 ### 배경
 
@@ -504,9 +504,9 @@ CRM 담당자가 리스트 상단부터 순서대로 접촉을 검토한다고 �
 ### 유의사항
 
 `priority`·`over_contact_risk` 모두 실측 접촉 이력이 아니라 Phase 4 설계
-시점의 정성적 판단이므로(위 2026-08-08 항목, `reports/phase4_segment_profile.md`
-참고), 이 2차 정렬도 "검증된 최적 순서"가 아니라 두 정성적 판단을 조합한
-표시 순서일 뿐이다.
+시점의 정성적 판단이므로(위 `장바구니_이탈형`/`장바구니_보류형` 분리 항목,
+`reports/phase4_segment_profile.md` 참고), 이 2차 정렬도 "검증된 최적
+순서"가 아니라 두 정성적 판단을 조합한 표시 순서일 뿐이다.
 
 ### 관련 코드
 
