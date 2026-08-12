@@ -28,7 +28,6 @@ CLAUDE.md 원 규칙상 이는 10번 "Phase 1 중단 조건"("타임스탬프가
 벗어남")에 해당해 중단 대상이었으나, 사용자와 협의하여 하드 컷오프 중단 규칙을
 "데이터 시점 투명 명시" 방식으로 전환하고 Phase 1을 계속 진행하기로 결정했다.
 
-- 결정 전문 및 근거: [`docs/methodology.md`](../docs/methodology.md) (2026-08-05 항목)
 - 관련 한계 기록: [`docs/limitations.md`](../docs/limitations.md) (1번 항목)
 - CLAUDE.md 2번("중요한 검증 조건"), 10번("Phase 1 중단 조건") 섹션에 인라인 갱신 반영
 
