@@ -7,10 +7,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.dashboard.data import show_data_period_notice
 from src.dashboard.theme import inject_global_css
 
-st.set_page_config(page_title="CRM Targeting Intelligence", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Churn & Purchase Intent Prediction", page_icon="📊", layout="wide")
 inject_global_css()
 
-st.title("Customer Lifecycle & CRM Targeting Intelligence")
+st.title("Predicting Churn & Purchase Intent for CRM Targeting")
 
 st.markdown(
     """

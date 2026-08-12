@@ -4,7 +4,7 @@
 
 ### 프로젝트명
 
-**Customer Lifecycle & CRM Targeting Intelligence**
+**Predicting Churn & Purchase Intent for CRM Targeting**
 
 ### 프로젝트 목적
 

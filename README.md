@@ -1,4 +1,4 @@
-# Customer Lifecycle & CRM Targeting Intelligence
+# Predicting Churn & Purchase Intent for CRM Targeting
 
 모든 고객에게 똑같은 CRM 메시지를 보내는 게 맞을까? 고객의 탐색·장바구니·
 구매 행동을 보면 답이 달라진다. **예전엔 샀지만 요즘 안 사는 고객**과
