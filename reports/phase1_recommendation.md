@@ -10,8 +10,9 @@ Phase 1 검증 결과를 바탕으로 가능한 프로젝트 주제 3개를 제�
 
 **상태: 해결됨.** 프로젝트 주제는 **A안(구매 비활성 위험 예측 + CRM 타기팅)** 으로
 확정됐고, 아래 우측 검열 문제는 사용자 확인을 거쳐 처리 방침이 결정됐습니다.
-결정 전문은 `docs/methodology.md`(2026-08-05 "우측 검열 고객 처리 방침"
-항목), 로그는 `docs/decisions_pending_review.md`("우측 검열 고객 처리 방침
+결정 전문은 `docs/methodology.md`("프로젝트 주제 확정(A안) 및 우측
+검열(right-censoring) 고객 처리 방침" 항목), 로그는
+`docs/decisions_pending_review.md`("우측 검열 고객 처리 방침
 [결정 완료]" 항목) 참고. 아래는 결정 당시의 원본 blocker 기록입니다.
 
 > **우측 검열(right-censoring) 고객 처리 방침**

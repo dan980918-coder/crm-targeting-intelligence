@@ -194,8 +194,8 @@ search_query)에서 동시에 상위 이상치로 반복 등장 — 봇/크롤�
 15.18%)을 Phase 5\~6 모델링에서 실제로 어떻게 처리할지. `reports/phase1_recommendation.md`
 에 Phase 5 착수 전 반드시 해결해야 할 blocker로 명시하고 사용자에게 확인받음.
 
-**검토한 선택지** (상세는 `docs/methodology.md` 2026-08-05 "우측 검열 고객
-처리 방침" 항목 참고)
+**검토한 선택지** (상세는 `docs/methodology.md`의 "프로젝트 주제 확정(A안) 및
+우측 검열(right-censoring) 고객 처리 방침" 항목 참고)
 1. 우측 검열 대상 고객을 학습/평가에서 개별적으로 제외
 2. `snapshot_date`를 관측 종료일 − label window(14일) 이전으로만 선택해
    스냅샷 설계 자체에서 검열을 원천 차단
@@ -204,7 +204,8 @@ search_query)에서 동시에 상위 이상치로 반복 등장 — 봇/크롤�
 **결정**: **2번 채택** + 안전장치로 1번의 "검열 여부 체크"를 PROJECT_GUIDELINES.md 31번
 데이터 테스트(Snapshot Feature·Label 분리 검증)에 포함.
 
-**근거 및 상세**: `docs/methodology.md` 2026-08-05 항목에 전문 기록. 요약 —
+**근거 및 상세**: `docs/methodology.md`의 "프로젝트 주제 확정(A안) 및 우측
+검열(right-censoring) 고객 처리 방침" 항목에 전문 기록. 요약 —
 `mart_customer_snapshot`의 Feature/Label Window 구조(PROJECT_GUIDELINES.md 12번)를 그대로
 활용해 `snapshot_date ≤ 2022-11-24`(=2022-12-08 − 14일)로 제한하면, 개별
 고객 단위 검열 판정 로직 없이 구조적으로 문제가 해소됨. 안전장치로

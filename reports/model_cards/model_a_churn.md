@@ -28,7 +28,8 @@ n_add_to_cart_28d, n_remove_from_cart_28d
 avg_category_repurchase_rate의 feature importance는 13개 중 9위(중간 정도
 기여, 최상위 대비 4.9%) — 카테고리별 재구매율 차이(예: 특정 카테고리
 28.59% vs 전체 평균 7.18%)가 실제 예측에 일부 기여함을 확인했다. 상세:
-`docs/methodology.md` 2026-08-08 항목.
+`docs/methodology.md`의 "`avg_category_repurchase_rate`를 Model A/B feature로
+추가 + Phase 3 리포트 정정("계산 불가" → 실제 계산)" 항목.
 
 ## 한계 및 주의사항
 - **이 모델은 Lift가 아니라 AUC로 평가하는 게 맞다.** 라벨 기저율이 90%+

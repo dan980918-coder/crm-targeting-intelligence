@@ -33,7 +33,7 @@ Recall을 최근성_규칙이 달성하려면?): 모델 대비 **0.67% 절감**(
 
 **2026-08-08 갱신**: 모집단 정의를 search_first 기준으로 통일(검색 1회
 이상 → 검색이 방문보다 먼저)한 뒤 재빌드한 결과 — 근거는
-`docs/methodology.md` 2026-08-08 "`mart_purchase_propensity` 모집단
+`docs/methodology.md`의 "`mart_purchase_propensity` 모집단
 조건을 search_first로 통일" 항목 참고.
 
 | 접촉 비율 | 정책 | 선정 인원 | 실제 포착 | Precision | Recall | Lift |

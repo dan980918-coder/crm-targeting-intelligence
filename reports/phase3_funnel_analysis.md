@@ -75,7 +75,7 @@ z=55.5로 우연이라 보기 어려움). 즉 "표본 부족으로 계산 불가
 
 이 재구매율 차이는 이후 Model A/B의 feature(고객이 구매한 카테고리들의
 평균 재구매율)로 반영했다 — `mart_customer_snapshot.sql`,
-`docs/methodology.md` 2026-08-08 항목, `reports/adhoc_category_repurchase_rate_n100plus.csv`
+`docs/methodology.md`의 "`avg_category_repurchase_rate`를 Model A/B feature로 추가 + Phase 3 리포트 정정("계산 불가" → 실제 계산)" 항목, `reports/adhoc_category_repurchase_rate_n100plus.csv`
 참고.
 
 ## 반복구매자 vs 1회 구매자 퍼널 차이

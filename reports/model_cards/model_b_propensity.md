@@ -29,7 +29,8 @@ avg_category_repurchase_rate의 feature importance는 8개 중 꼴찌(최상위
 `has_purchase_history` 대비 1.7%) — 모집단 상당수가 구매 이력이 없어 이
 feature 자체가 NULL이고, 이미 has_purchase_history 등 훨씬 강한 신호가
 있기 때문으로 판단된다(Model A에서는 9/13위로 더 유효했음). 상세:
-`docs/methodology.md` 2026-08-08 항목.
+`docs/methodology.md`의 "`avg_category_repurchase_rate`를 Model A/B feature로
+추가 + Phase 3 리포트 정정("계산 불가" → 실제 계산)" 항목.
 
 ## 한계 및 주의사항
 - 모집단이 "활동 고객" 중 일부(방문 10회 이상/search_first/장바구니/구매

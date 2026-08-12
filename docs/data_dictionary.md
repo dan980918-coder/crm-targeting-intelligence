@@ -157,7 +157,7 @@ lazy 참조한다 (materialize하지 않음 — Phase 1 원칙: 전체를 메모
 - **컬럼**: first_event_ts, last_event_ts, observation_days, n_active_days, is_left_censor_candidate(좌측 7일 창), is_right_censor_candidate(우측 14일 창)
 - **참고**: 우측 검열 문제 자체의 실제 처리는 이 테이블의 플래그가 아니라 Phase 5
   `mart_customer_snapshot`의 snapshot_date 제한 설계로 원천 차단하기로 이미 결정됨
-  (`docs/methodology.md` 2026-08-05 항목). 이 테이블은 진단/참고용.
+  (`docs/methodology.md`의 "프로젝트 주제 확정(A안) 및 우측 검열(right-censoring) 고객 처리 방침" 항목). 이 테이블은 진단/참고용.
 - **생성 SQL**: `sql/intermediate/int_customer_observation_period.sql`
 - **입력**: 5개 stg_* / **출력**: Phase 5 스냅샷 설계 참고
 
@@ -247,8 +247,8 @@ PROJECT_GUIDELINES.md 11번이 요구하는 11개 mart 테이블 중, 라이프�
 - **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
 - **컬럼**: lifecycle_stage(원본 상태 보존), segment, cart_removal_subtype(2026-08-08 추가 — `장바구니_이탈형`/`장바구니_보류형`에만 값 존재, 나머지 7개는 NULL. `no_removal_recorded`(→ 항상 장바구니_보류형)/`fast_removal`/`slow_removal`(→ 항상 장바구니_이탈형). 근거: `reports/phase4_segment_profile.md`)
 - **segment 값 9개**(2026-08-08 갱신, 8→9 — PROJECT_GUIDELINES.md 17번 취소선+갱신 이력 참고): `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `장바구니_보류형`(신설), `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
-- **탐색_고객 세분화 기준**(데이터 기반, 2026-08-07 갱신): 방문 ≥10회(해당 그룹 p90, 변곡점은 아니나 상위 10% cut·과접촉 방지 근거는 유효) 또는 검색을 방문보다 먼저 함(search_first — 검색만 하거나 방문을 먼저 한 경우는 실제 전환율이 2.59\~7.75%로 낮아 제외, search_first는 44.02%로 높아 채택) → `구매_직전_탐색형`(2,212,414명, 9.92%), 나머지는 `저관여_탐색형`. 근거: `docs/methodology.md` 2026-08-07 항목
-- **장바구니_고객 세분화 기준**(데이터 기반, 2026-08-08 신설 — 근거: `docs/methodology.md` 2026-08-08 항목): 제거 이벤트가 전혀 없으면(`no_removal_recorded`, 79.38%) `장바구니_보류형`, 명시적으로 제거했으면(`fast_removal`/`slow_removal`, 20.62%) `장바구니_이탈형`. 원래 하나였던 `장바구니_이탈형`(1,772,451명)의 79.38%가 실제로는 제거 이벤트가 없는데도 "이탈"로 분류돼 있던 것을 재확인 후 분리
+- **탐색_고객 세분화 기준**(데이터 기반, 2026-08-07 갱신): 방문 ≥10회(해당 그룹 p90, 변곡점은 아니나 상위 10% cut·과접촉 방지 근거는 유효) 또는 검색을 방문보다 먼저 함(search_first — 검색만 하거나 방문을 먼저 한 경우는 실제 전환율이 2.59\~7.75%로 낮아 제외, search_first는 44.02%로 높아 채택) → `구매_직전_탐색형`(2,212,414명, 9.92%), 나머지는 `저관여_탐색형`. 근거: `docs/methodology.md`의 "`구매_직전_탐색형` 세분화 기준 재조정: 검색 단독 신호 → 검색-선행(search_first) 신호" 항목
+- **장바구니_고객 세분화 기준**(데이터 기반, 2026-08-08 신설 — 근거: `docs/methodology.md`의 "`장바구니_이탈형`을 `장바구니_이탈형`/`장바구니_보류형`으로 분리" 항목): 제거 이벤트가 전혀 없으면(`no_removal_recorded`, 79.38%) `장바구니_보류형`, 명시적으로 제거했으면(`fast_removal`/`slow_removal`, 20.62%) `장바구니_이탈형`. 원래 하나였던 `장바구니_이탈형`(1,772,451명)의 79.38%가 실제로는 제거 이벤트가 없는데도 "이탈"로 분류돼 있던 것을 재확인 후 분리
 - **각 세그먼트의 정의/구매율/구매주기/CRM목적/추천액션/접촉우선순위/과접촉위험**: `reports/phase4_segment_profile.md`
 - **생성 SQL**: `sql/marts/mart_customer_segment.sql`
 - **품질 테스트**: `tests/data_quality/test_segment.py` — PK 유일성, 미분류 0건, 정확히 9개 세그먼트, lifecycle 상태별 인원과 정합성(장바구니 두 세그먼트 합=lifecycle 장바구니_고객), cart_removal_subtype-segment 매핑 일관성
@@ -263,7 +263,7 @@ PROJECT_GUIDELINES.md 11번이 요구하는 11개 mart 테이블 중, 라이프�
 - **Label Window**: snapshot_date 이후 14일 및 28일 **둘 다** 계산 (PROJECT_GUIDELINES.md 18번이 두 값을 "비교 대상"으로 명시)
 - **snapshot_date**: 9개 (2022-07-21 \~ 2022-11-10, 14일 간격). 유효 범위 산출 근거:
   - 하한 = 관측시작일 + 28일 (feature window 확보)
-  - 상한 = 관측종료일 − 28일 (두 라벨 중 더 엄격한 28일 기준으로 우측 검열 원천 차단 — `docs/methodology.md` 2026-08-05 결정 적용)
+  - 상한 = 관측종료일 − 28일 (두 라벨 중 더 엄격한 28일 기준으로 우측 검열 원천 차단 — `docs/methodology.md`의 "프로젝트 주제 확정(A안) 및 우측 검열(right-censoring) 고객 처리 방침" 결정 적용)
   - 간격 14일 = 라벨 윈도우 길이와 동일하게 맞춰 인접 스냅샷의 라벨 기간 중복 최소화
 - **모집단**: snapshot_date 이전 구매 이력이 있는 고객만 (PROJECT_GUIDELINES.md 18번 Model A 정의). Model B(활동 고객 전체)용은 별도 테이블로 분리 예정(미착수)
 - **컬럼**: last_purchase_ts, days_since_last_purchase, n_purchase_occasions_so_far, n_purchase_days_so_far, avg_purchase_gap_days_so_far, n_purchases_7d/14d/28d, n_categories_so_far, n_page_visit_28d, n_search_query_28d, n_add_to_cart_28d, n_remove_from_cart_28d, label_purchase_14d, label_purchase_28d, label_inactive_14d, label_inactive_28d

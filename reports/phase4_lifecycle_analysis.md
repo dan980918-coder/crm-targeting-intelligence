@@ -1,6 +1,6 @@
 # Phase 4 - 고객 라이프사이클 분석
 
-기반 테이블: `mart_customer_lifecycle` (근거·임계값 산출 과정은 `docs/methodology.md` 2026-08-05 항목 참고)
+기반 테이블: `mart_customer_lifecycle` (근거·임계값 산출 과정은 `docs/methodology.md`의 "라이프사이클 상태 임계값 확정 (14일/28일/60일)" 항목 참고)
 
 ## 라이프사이클 상태 분포
 
