@@ -1,6 +1,6 @@
 """Phase 9 - LLM CRM 리포트 Pydantic 스키마.
 
-CLAUDE.md 27번 파이프라인(DuckDB SQL -> Python 검증 -> Pydantic JSON -> LLM ->
+PROJECT_GUIDELINES.md 27번 파이프라인(DuckDB SQL -> Python 검증 -> Pydantic JSON -> LLM ->
 CRM 리포트)에서 "Pydantic JSON" 단계에 해당한다. data_facts/model_predictions는
 Python이 DuckDB에서 미리 계산·검증한 값을 그대로 담으며, LLM은 이 값을
 다시 계산하거나 새 숫자를 만들지 않는다 — LLM의 역할은 recommended_actions/
@@ -65,7 +65,7 @@ class CRMReportInput(BaseModel):
 
 
 class CRMReportOutput(BaseModel):
-    """4영역 구분 리포트 (CLAUDE.md 28번).
+    """4영역 구분 리포트 (PROJECT_GUIDELINES.md 28번).
 
     data_facts/model_predictions는 입력을 그대로 통과시킨다(passthrough) —
     LLM이 재생성하지 않으므로 입력-출력 숫자 불일치가 구조적으로 발생하지 않는다.

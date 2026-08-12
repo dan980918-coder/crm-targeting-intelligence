@@ -1,6 +1,6 @@
 """Phase 5 mart_customer_snapshot 데이터 품질 테스트.
 
-CLAUDE.md 31번 "Snapshot Feature·Label 분리" 테스트 항목 구현.
+PROJECT_GUIDELINES.md 31번 "Snapshot Feature·Label 분리" 테스트 항목 구현.
 docs/methodology.md 2026-08-05 "우측 검열 고객 처리 방침" 결정에서 약속한
 안전장치(snapshot_date + label_window <= 관측 종료일)를 여기서 검증한다.
 """

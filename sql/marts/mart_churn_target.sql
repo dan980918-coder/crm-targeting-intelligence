@@ -1,7 +1,7 @@
 -- Grain: 1 row = 1 고객 x 1 snapshot_date (mart_customer_snapshot과 동일 그레인/모집단)
 -- Primary Key: (client_id, snapshot_date)
 --
--- CLAUDE.md 18번 Model A("구매 비활성 위험", 과거 구매 이력이 있는 고객 대상)의
+-- PROJECT_GUIDELINES.md 18번 Model A("구매 비활성 위험", 과거 구매 이력이 있는 고객 대상)의
 -- 타겟 테이블. mart_customer_snapshot은 범용 feature+label 저장소이고, 이
 -- 테이블은 Model A 학습에 바로 쓸 수 있도록 타겟 컬럼명을 명확히 하고
 -- (label_inactive_* -> churn_*) 불필요한 컬럼을 정리한 "모델링 준비" 뷰다.

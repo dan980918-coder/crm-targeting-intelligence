@@ -1,10 +1,10 @@
-"""Phase 6 - Model A: 구매 비활성 위험 예측 (CLAUDE.md 18, 20~22번).
+"""Phase 6 - Model A: 구매 비활성 위험 예측 (PROJECT_GUIDELINES.md 18, 20~22번).
 
 시간순 분할(snapshot_date 기준): Train 6개(07-21~09-29) / Val 1개(10-13) /
 Test 2개(10-27, 11-10). 근거는 reports/phase6_model_a_results.md 참고.
 
 기준선(무작위/전체평균/최근성/빈도/라이프사이클) -> 로지스틱 회귀 -> LightGBM
-순으로 비교한다 (CLAUDE.md 20번 "복잡한 모델이 단순 규칙보다 나은지 확인").
+순으로 비교한다 (PROJECT_GUIDELINES.md 20번 "복잡한 모델이 단순 규칙보다 나은지 확인").
 """
 
 from __future__ import annotations

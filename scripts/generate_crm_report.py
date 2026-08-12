@@ -1,4 +1,4 @@
-"""Phase 9 - LLM CRM 리포트 생성 CLI (CLAUDE.md 27~28번).
+"""Phase 9 - LLM CRM 리포트 생성 CLI (PROJECT_GUIDELINES.md 27~28번).
 
 data/dashboard/의 사전 검증된 집계 파일(Python이 DuckDB에서 이미 계산·검증한
 값)을 읽어 Pydantic 입력으로 구성하고, LLM(또는 API 키가 없으면 mock)을 호출해

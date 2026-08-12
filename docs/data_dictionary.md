@@ -1,6 +1,6 @@
 # Data Dictionary — SQL 레이어 테이블 문서
 
-CLAUDE.md 12번 원칙에 따라 각 테이블의 목적·Grain·PK·FK·컬럼·생성 SQL·갱신
+PROJECT_GUIDELINES.md 12번 원칙에 따라 각 테이블의 목적·Grain·PK·FK·컬럼·생성 SQL·갱신
 방식·품질 테스트·입출력 테이블을 기록한다. Phase가 진행됨에 따라
 intermediate/mart 섹션을 계속 추가한다.
 
@@ -163,7 +163,7 @@ lazy 참조한다 (materialize하지 않음 — Phase 1 원칙: 전체를 메모
 
 ## Mart Layer
 
-CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·세그먼트·이탈
+PROJECT_GUIDELINES.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·세그먼트·이탈
 기준처럼 아직 확정되지 않은 값에 의존하지 않는 **5개만 우선 구축**했다.
 나머지 6개(`mart_customer_lifecycle`, `mart_customer_segment`,
 `mart_customer_snapshot`, `mart_churn_target`, `mart_purchase_propensity`,
@@ -196,14 +196,14 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 ### mart_customer_cohort
 
-- **목적**: "첫 관측 구매 주차" 코호트 배정 (CLAUDE.md 14번 고정 정의)
+- **목적**: "첫 관측 구매 주차" 코호트 배정 (PROJECT_GUIDELINES.md 14번 고정 정의)
 - **Grain**: 1행 = 1 구매 고객 (909,210행) / **PK**: client_id
 - **컬럼**: first_purchase_ts, cohort_week, n_purchases, n_purchase_days, avg_purchase_gap_days
 - **생성 SQL**: `sql/marts/mart_customer_cohort.sql`
 
 ### mart_customer_retention
 
-- **목적**: 코호트별 7/14/28일 재구매율 (CLAUDE.md 14번 고정 지표)
+- **목적**: 코호트별 7/14/28일 재구매율 (PROJECT_GUIDELINES.md 14번 고정 지표)
 - **Grain**: 1행 = 1 cohort_week (25개 주차) / **PK**: cohort_week
 - **컬럼**: n_customers_in_cohort, repurchase_7d/14d/28d_rate, avg_purchase_days, avg_category_diversity, is_7d/14d/28d_window_censored
 - **중요**: 우측 검열로 인해 마지막 4개 코호트(2022-11-14 이후)는 하나 이상의
@@ -218,11 +218,11 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 - **목적**: 관측 종료 시점(2022-12-08) 기준 고객 라이프사이클 상태 분류
 - **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
 - **컬럼**: is_buyer, n_purchase_days, days_since_last_purchase, gap_before_last_purchase, lifecycle_stage
-- **lifecycle_stage 값**(8개, CLAUDE.md 16번 후보 9개 중 반복구매/활성구매를 하나로 통합):
+- **lifecycle_stage 값**(8개, PROJECT_GUIDELINES.md 16번 후보 9개 중 반복구매/활성구매를 하나로 통합):
   `탐색_고객`, `장바구니_고객`, `첫_관측_구매_고객`, `활성_구매_고객`, `구매_감소_고객`, `구매_비활성_위험_고객`, `비활성_고객`, `복귀_고객`
 - **임계값 근거** (데이터 기반, 자세한 내용은 `docs/methodology.md` 참고):
   14일 = 구매간격 중앙값(9.48일) × 1.5, 28일 = 중앙값 × 3, 60일 ≈ 구매간격 p90(68.05일).
-  CLAUDE.md 18번이 "비교 대상"으로 제시한 14일/28일과 정확히 일치.
+  PROJECT_GUIDELINES.md 18번이 "비교 대상"으로 제시한 14일/28일과 정확히 일치.
 - **분포** (2026-08-05 빌드 기준):
 
   | 상태 | 고객 수 | 비율 |
@@ -243,10 +243,10 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 ### mart_customer_segment
 
-- **목적**: CLAUDE.md 17번 규칙 기반 CRM 세그먼트 (mart_customer_lifecycle을 CRM 액션 단위로 재구성)
+- **목적**: PROJECT_GUIDELINES.md 17번 규칙 기반 CRM 세그먼트 (mart_customer_lifecycle을 CRM 액션 단위로 재구성)
 - **Grain**: 1행 = 1 고객 (전체 22,298,361행) / **PK**: client_id
 - **컬럼**: lifecycle_stage(원본 상태 보존), segment, cart_removal_subtype(2026-08-08 추가 — `장바구니_이탈형`/`장바구니_보류형`에만 값 존재, 나머지 7개는 NULL. `no_removal_recorded`(→ 항상 장바구니_보류형)/`fast_removal`/`slow_removal`(→ 항상 장바구니_이탈형). 근거: `reports/phase4_segment_profile.md`)
-- **segment 값 9개**(2026-08-08 갱신, 8→9 — CLAUDE.md 17번 취소선+갱신 이력 참고): `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `장바구니_보류형`(신설), `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
+- **segment 값 9개**(2026-08-08 갱신, 8→9 — PROJECT_GUIDELINES.md 17번 취소선+갱신 이력 참고): `저관여_탐색형`, `구매_직전_탐색형`, `장바구니_이탈형`, `장바구니_보류형`(신설), `첫_관측_구매_고관여형`, `안정적_반복구매형`, `반복구매_감소형`, `구매_비활성형`, `복귀형`
 - **탐색_고객 세분화 기준**(데이터 기반, 2026-08-07 갱신): 방문 ≥10회(해당 그룹 p90, 변곡점은 아니나 상위 10% cut·과접촉 방지 근거는 유효) 또는 검색을 방문보다 먼저 함(search_first — 검색만 하거나 방문을 먼저 한 경우는 실제 전환율이 2.59\~7.75%로 낮아 제외, search_first는 44.02%로 높아 채택) → `구매_직전_탐색형`(2,212,414명, 9.92%), 나머지는 `저관여_탐색형`. 근거: `docs/methodology.md` 2026-08-07 항목
 - **장바구니_고객 세분화 기준**(데이터 기반, 2026-08-08 신설 — 근거: `docs/methodology.md` 2026-08-08 항목): 제거 이벤트가 전혀 없으면(`no_removal_recorded`, 79.38%) `장바구니_보류형`, 명시적으로 제거했으면(`fast_removal`/`slow_removal`, 20.62%) `장바구니_이탈형`. 원래 하나였던 `장바구니_이탈형`(1,772,451명)의 79.38%가 실제로는 제거 이벤트가 없는데도 "이탈"로 분류돼 있던 것을 재확인 후 분리
 - **각 세그먼트의 정의/구매율/구매주기/CRM목적/추천액션/접촉우선순위/과접촉위험**: `reports/phase4_segment_profile.md`
@@ -259,23 +259,23 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 - **목적**: Phase 5\~6 모델링용 시점별(snapshot_date) 고객 feature·label 테이블
 - **Grain**: 1행 = 1 고객 × 1 snapshot_date (4,196,385행) / **PK**: (client_id, snapshot_date)
-- **Feature Window**: snapshot_date 이전 28일 (CLAUDE.md 12번 예시값)
-- **Label Window**: snapshot_date 이후 14일 및 28일 **둘 다** 계산 (CLAUDE.md 18번이 두 값을 "비교 대상"으로 명시)
+- **Feature Window**: snapshot_date 이전 28일 (PROJECT_GUIDELINES.md 12번 예시값)
+- **Label Window**: snapshot_date 이후 14일 및 28일 **둘 다** 계산 (PROJECT_GUIDELINES.md 18번이 두 값을 "비교 대상"으로 명시)
 - **snapshot_date**: 9개 (2022-07-21 \~ 2022-11-10, 14일 간격). 유효 범위 산출 근거:
   - 하한 = 관측시작일 + 28일 (feature window 확보)
   - 상한 = 관측종료일 − 28일 (두 라벨 중 더 엄격한 28일 기준으로 우측 검열 원천 차단 — `docs/methodology.md` 2026-08-05 결정 적용)
   - 간격 14일 = 라벨 윈도우 길이와 동일하게 맞춰 인접 스냅샷의 라벨 기간 중복 최소화
-- **모집단**: snapshot_date 이전 구매 이력이 있는 고객만 (CLAUDE.md 18번 Model A 정의). Model B(활동 고객 전체)용은 별도 테이블로 분리 예정(미착수)
+- **모집단**: snapshot_date 이전 구매 이력이 있는 고객만 (PROJECT_GUIDELINES.md 18번 Model A 정의). Model B(활동 고객 전체)용은 별도 테이블로 분리 예정(미착수)
 - **컬럼**: last_purchase_ts, days_since_last_purchase, n_purchase_occasions_so_far, n_purchase_days_so_far, avg_purchase_gap_days_so_far, n_purchases_7d/14d/28d, n_categories_so_far, n_page_visit_28d, n_search_query_28d, n_add_to_cart_28d, n_remove_from_cart_28d, label_purchase_14d, label_purchase_28d, label_inactive_14d, label_inactive_28d
 - **검증 결과**: 라벨 비율이 스냅샷 전 구간에서 안정적(14일 라벨 5.0\~6.9%, 28일 라벨 9.0\~11.3%) — 우측 검열 보정 전 `mart_customer_retention`에서 봤던 "최근 코호트일수록 비율 급락" 현상이 재현되지 않음, 설계가 의도대로 작동함을 시사
 - **생성 SQL**: `sql/marts/mart_customer_snapshot.sql`
-- **품질 테스트**: `tests/data_quality/test_snapshot.py` (8개, CLAUDE.md 31번 "Snapshot Feature·Label 분리" 테스트 포함 — 모든 snapshot_date의 라벨 기간이 실제 관측 범위 내에 있는지 검증)
+- **품질 테스트**: `tests/data_quality/test_snapshot.py` (8개, PROJECT_GUIDELINES.md 31번 "Snapshot Feature·Label 분리" 테스트 포함 — 모든 snapshot_date의 라벨 기간이 실제 관측 범위 내에 있는지 검증)
 - **입력**: stg_product_buy, stg_add_to_cart, stg_remove_from_cart, stg_page_visit, stg_search_query, stg_product_properties
 - **출력**: mart_churn_target, mart_purchase_propensity, Phase 6 모델링
 
 ### mart_churn_target
 
-- **목적**: CLAUDE.md 18번 Model A(구매 비활성 위험) 학습용 타겟 테이블
+- **목적**: PROJECT_GUIDELINES.md 18번 Model A(구매 비활성 위험) 학습용 타겟 테이블
 - **Grain**: 1행 = 1 고객 × 1 snapshot_date (mart_customer_snapshot과 동일, 4,196,385행) / **PK**: (client_id, snapshot_date)
 - **모집단**: mart_customer_snapshot과 동일 — snapshot_date 이전 구매 이력이 있는 고객만
 - **컬럼**: mart_customer_snapshot의 feature 컬럼 전부 + `churn_14d`, `churn_28d` (원본 `label_inactive_14d/28d`를 모델링 목적에 맞게 리네임)
@@ -284,7 +284,7 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 ### mart_purchase_propensity
 
-- **목적**: CLAUDE.md 19번 Model B(향후 구매 가능성) 학습용 타겟 테이블
+- **목적**: PROJECT_GUIDELINES.md 19번 Model B(향후 구매 가능성) 학습용 타겟 테이블
 - **Grain**: 1행 = 1 고객 × 1 snapshot_date (21,119,640행, 2026-08-08 갱신 —
   이전 22,277,058행에서 아래 모집단 조건 변경으로 감소, `docs/methodology.md` 참고)
   / **PK**: (client_id, snapshot_date)
@@ -305,7 +305,7 @@ CLAUDE.md 11번이 요구하는 11개 mart 테이블 중, 라이프사이클·�
 
 ### mart_targeting_simulation
 
-- **목적**: CLAUDE.md 23\~24번 CRM 타기팅 정책 비교 시뮬레이션 결과
+- **목적**: PROJECT_GUIDELINES.md 23\~24번 CRM 타기팅 정책 비교 시뮬레이션 결과
 - **Grain**: 1행 = 1 모델 × 1 라벨 × 1 접촉비율 × 1 정책(72행) / **PK**: (model, label, contact_rate_pct, policy)
 - **정책**: 무작위, 최근성_규칙, (Model A만)라이프사이클_규칙, 모델_LightGBM, 모델_vs_최근성_규칙_동일recall비교
 - **컬럼**: n_total, n_selected, n_actual_captured, precision, recall, lift, customers_needed_by_rule_for_same_recall, contact_reduction_pct(비교 행에만 존재)

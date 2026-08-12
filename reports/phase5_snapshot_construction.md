@@ -4,13 +4,13 @@
 
 | 항목 | 값 | 근거 |
 |---|---|---|
-| Grain | client_id × snapshot_date | CLAUDE.md 12번 예시 |
-| Feature Window | snapshot_date 이전 28일 | CLAUDE.md 12번 예시값 채택 |
-| Label Window | 이후 14일 **및** 28일 (둘 다) | CLAUDE.md 18번 "14일과 28일을 비교 대상으로 명시" — 하나를 임의로 고르지 않음 |
+| Grain | client_id × snapshot_date | PROJECT_GUIDELINES.md 12번 예시 |
+| Feature Window | snapshot_date 이전 28일 | PROJECT_GUIDELINES.md 12번 예시값 채택 |
+| Label Window | 이후 14일 **및** 28일 (둘 다) | PROJECT_GUIDELINES.md 18번 "14일과 28일을 비교 대상으로 명시" — 하나를 임의로 고르지 않음 |
 | snapshot_date 하한 | 2022-07-21 (관측시작 +28일) | feature window 전체 확보 |
 | snapshot_date 상한 | 2022-11-10 (관측종료 −28일) | 두 라벨 중 더 엄격한 28일 기준으로 우측 검열 원천 차단 (`docs/methodology.md`) |
 | snapshot_date 간격 | 14일 (9개 스냅샷) | 라벨 윈도우 길이와 맞춰 인접 스냅샷 라벨 기간 중복 최소화 |
-| 모집단 | snapshot_date 이전 구매 이력 있는 고객 | CLAUDE.md 18번 Model A 정의 |
+| 모집단 | snapshot_date 이전 구매 이력 있는 고객 | PROJECT_GUIDELINES.md 18번 Model A 정의 |
 | 결과 행 수 | 4,196,385 | — |
 
 ## 검증 결과
@@ -39,7 +39,7 @@
 
 ## 안전장치 구현
 
-CLAUDE.md 31번 "Snapshot Feature·Label 분리" 테스트 항목을 다음 두 곳에
+PROJECT_GUIDELINES.md 31번 "Snapshot Feature·Label 분리" 테스트 항목을 다음 두 곳에
 구현했다 (`docs/methodology.md`에서 약속한 대로).
 
 - `tests/data_quality/test_snapshot.py::test_no_label_window_censoring`

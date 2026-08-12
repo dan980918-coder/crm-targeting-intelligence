@@ -42,7 +42,7 @@ avg_category_repurchase_rate의 feature importance는 13개 중 9위(중간 정�
   `docs/hypotheses.md` 9번
 - 6개월 관측 스냅샷 기반이라 장기 이탈은 다루지 않음(`docs/limitations.md`)
 - 실제 배포/캠페인 적용 시 성능은 검증되지 않음 — 과거 데이터 기반 대상
-  선정 효율만 확인 (CLAUDE.md 5번, 실제 이탈률 개선 주장 금지)
+  선정 효율만 확인 (PROJECT_GUIDELINES.md 5번, 실제 이탈률 개선 주장 금지)
 
 ## 재현
 `python3 scripts/train_model_a.py`

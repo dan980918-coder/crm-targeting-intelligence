@@ -1,4 +1,4 @@
-"""Phase 3 - 고객 단위 퍼널 분석 (CLAUDE.md 13번).
+"""Phase 3 - 고객 단위 퍼널 분석 (PROJECT_GUIDELINES.md 13번).
 
 reports/phase3_funnel_analysis.md의 모든 수치를 재현하는 스크립트.
 작성 당시(2026-08-06) 즉석 쿼리로만 계산하고 스크립트를 남기지 않아 재현이

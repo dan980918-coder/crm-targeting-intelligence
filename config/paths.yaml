@@ -1,5 +1,5 @@
 # 프로젝트 경로 설정
-# CLAUDE.md 32번 디렉터리 구조와 정합. data/raw, database 파일은 .gitignore 대상.
+# PROJECT_GUIDELINES.md 32번 디렉터리 구조와 정합. data/raw, database 파일은 .gitignore 대상.
 
 raw_data_dir: data/raw/synerise_dataset
 external_data_dir: data/external

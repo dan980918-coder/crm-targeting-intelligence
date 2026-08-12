@@ -8,7 +8,7 @@
 - 엔트리포인트: `app/Home.py`
 - 배포된 앱은 `data/dashboard/*.csv`(약 15KB, 사전 집계된 소용량 파일)만
   읽는다(`src/dashboard/data.py` 참고) — 원본 데이터·`data/processed/*.duckdb`
-  (3GB+, gitignore 대상)는 배포 환경에 포함하지 않는다(CLAUDE.md 33번).
+  (3GB+, gitignore 대상)는 배포 환경에 포함하지 않는다(PROJECT_GUIDELINES.md 33번).
 
 ## Streamlit Community Cloud 배포 방법 (GitHub 연동)
 
@@ -34,7 +34,7 @@ OPENAI_API_KEY = "sk-..."
 
 `src/llm/client.py`의 `get_available_backend()`가 이 값을 자동으로 감지해
 mock → 실제 LLM 백엔드로 전환한다. API 키는 절대 저장소에 커밋하지 않는다
-(CLAUDE.md 33번, `.gitignore`의 `.env*`).
+(PROJECT_GUIDELINES.md 33번, `.gitignore`의 `.env*`).
 
 ## 로컬 실행 순서
 

@@ -33,7 +33,7 @@ output = generate_crm_report(report_input)
 
 st.caption(f"생성 방식: {output.generated_by} | 기간: {output.period_start} ~ {output.period_end}")
 
-# 우선순위 배지 — LLM이 우선순위를 판단하지 않고(CLAUDE.md 12번), segment_facts에
+# 우선순위 배지 — LLM이 우선순위를 판단하지 않고(PROJECT_GUIDELINES.md 12번), segment_facts에
 # 실제로 들어있는 priority 값(SQL에서 이미 확정된 값)을 근거로 Python이 매핑한다.
 # build_report_input()이 애초에 "높음" 이상 세그먼트만 골라 LLM에 전달하므로
 # (data_loader.py HIGH_PRIORITY_LABELS), "중간/낮음" 배지는 이 리포트에 나타나지
@@ -100,7 +100,7 @@ for h in output.testable_hypotheses:
 
 st.markdown("---")
 st.caption(
-    "CLAUDE.md 29번 원칙: 입력에 없는 숫자 생성 금지, 매출/이탈률 개선 등 실제 성과 "
+    "PROJECT_GUIDELINES.md 29번 원칙: 입력에 없는 숫자 생성 금지, 매출/이탈률 개선 등 실제 성과 "
     "표현 금지, 상품명·검색어 임의 해석 금지, 인과관계 단정 금지. 위반 문구가 감지되면 "
     "리포트 생성 자체가 예외로 중단됩니다(`src/llm/report_generator.py`)."
 )

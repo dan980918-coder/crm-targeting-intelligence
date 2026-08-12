@@ -1,4 +1,4 @@
-"""Phase 9 LLM CRM 리포트 품질 테스트 (CLAUDE.md 30번).
+"""Phase 9 LLM CRM 리포트 품질 테스트 (PROJECT_GUIDELINES.md 30번).
 
 mock 백엔드로 실행 — API 키 없이도 CI에서 항상 재현 가능해야 하므로, 파이프라인
 로직(스키마 검증/사실 통과/금지어 검사/일관성)을 우선 검증한다. 실제 LLM

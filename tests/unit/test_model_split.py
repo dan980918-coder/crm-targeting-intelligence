@@ -1,4 +1,4 @@
-"""Phase 6 시간순 분할이 실제로 미래 누수 없이 이루어지는지 검증 (CLAUDE.md 9, 21번)."""
+"""Phase 6 시간순 분할이 실제로 미래 누수 없이 이루어지는지 검증 (PROJECT_GUIDELINES.md 9, 21번)."""
 
 import sys
 from pathlib import Path

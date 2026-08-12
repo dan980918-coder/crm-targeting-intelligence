@@ -1,4 +1,4 @@
-"""CLAUDE.md 22번 모델 평가 지표: Precision/Recall/Lift@K, Brier, Calibration."""
+"""PROJECT_GUIDELINES.md 22번 모델 평가 지표: Precision/Recall/Lift@K, Brier, Calibration."""
 
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ def calibration_table(y_true: np.ndarray, y_score: np.ndarray, n_bins: int = 10)
 
 def customers_needed_for_recall(y_true: np.ndarray, y_score: np.ndarray, target_recall: float) -> int:
     """target_recall(0~1)을 달성하려면 이 점수로 정렬했을 때 상위 몇 명을
-    선택해야 하는지 반환. CLAUDE.md 23번 "동일 포착률에 필요한 접촉 고객 수"."""
+    선택해야 하는지 반환. PROJECT_GUIDELINES.md 23번 "동일 포착률에 필요한 접촉 고객 수"."""
     y_true = np.asarray(y_true)
     y_score = np.asarray(y_score, dtype=float)
     total_true = y_true.sum()

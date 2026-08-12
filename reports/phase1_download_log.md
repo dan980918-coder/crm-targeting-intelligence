@@ -12,7 +12,7 @@
 
 출처: https://recsys.synerise.com/summary#download (2026-08-05 확인)
 
-CLAUDE.md에 기재된 `CC BY-NC 4.0`과 일치함을 확인.
+PROJECT_GUIDELINES.md에 기재된 `CC BY-NC 4.0`과 일치함을 확인.
 
 ## 다운로드한 파일
 
@@ -41,9 +41,9 @@ CLAUDE.md에 기재된 `CC BY-NC 4.0`과 일치함을 확인.
 | 다운로드 URL | https://data.recsys.synerise.com/dataset/challenge_dataset.tar.gz |
 | 압축 파일 크기 (HEAD 응답) | 1,441,649,865 bytes (≈ 1.34 GB) |
 | 서버 Last-Modified | 2025-11-12 12:35:16 GMT |
-| 다운로드 여부 | 미다운로드 — CLAUDE.md 8.1 원칙(원본 데이터 구조 우선 확인)에 따라 원본만 우선 다운로드함 |
+| 다운로드 여부 | 미다운로드 — PROJECT_GUIDELINES.md 8.1 원칙(원본 데이터 구조 우선 확인)에 따라 원본만 우선 다운로드함 |
 
 ## 비고
 
 - 원본 데이터 압축 해제 및 내부 파일 구조 검사는 8.2 단계에서 진행 예정.
-- 데이터 사용 원칙(CLAUDE.md 2번)에 따라 `data/raw/`는 `.gitignore`에 등록되어 GitHub에 업로드되지 않음 (`git check-ignore` 확인 완료).
+- 데이터 사용 원칙(PROJECT_GUIDELINES.md 2번)에 따라 `data/raw/`는 `.gitignore`에 등록되어 GitHub에 업로드되지 않음 (`git check-ignore` 확인 완료).

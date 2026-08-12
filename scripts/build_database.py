@@ -1,6 +1,6 @@
 """Phase 2 - sql/staging 아래 SQL 파일을 실행해 DuckDB 데이터베이스에 staging 뷰를 만든다.
 
-CLAUDE.md 32번 디렉터리 구조의 `data/processed/crm.duckdb`를 사용한다.
+PROJECT_GUIDELINES.md 32번 디렉터리 구조의 `data/processed/crm.duckdb`를 사용한다.
 staging 레이어는 VIEW로 생성해 원본 Parquet을 lazy하게 참조한다
 (전체를 메모리에 올리지 않는다는 Phase 1 원칙 유지).
 """

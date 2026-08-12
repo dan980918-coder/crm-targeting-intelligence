@@ -2,7 +2,7 @@
 
 Phase 1 8.9에서 확인한 대로 `page_visit.url`이 `sku`와 연결되지 않아 **상품
 단위 퍼널은 구조적으로 불가능**하다(`docs/methodology.md`). 이 분석은
-CLAUDE.md 13번 원칙에 따라 **고객 단위 탐색 퍼널**만 다룬다.
+PROJECT_GUIDELINES.md 13번 원칙에 따라 **고객 단위 탐색 퍼널**만 다룬다.
 
 집계 대상: `mart_customer_360` (22,298,361명)
 

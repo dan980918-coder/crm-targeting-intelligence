@@ -1,4 +1,4 @@
-"""Phase 6 - Model B: 향후 구매 가능성 예측 (CLAUDE.md 19, 20~22번).
+"""Phase 6 - Model B: 향후 구매 가능성 예측 (PROJECT_GUIDELINES.md 19, 20~22번).
 
 mart_purchase_propensity 사용 — Model A(mart_churn_target)보다 넓은 모집단
 (구매 이력 없는 고관여 탐색/장바구니 고객 포함). "구매함"이 소수 클래스라

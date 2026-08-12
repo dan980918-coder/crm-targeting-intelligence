@@ -1,4 +1,4 @@
-# CLAUDE.md
+# PROJECT_GUIDELINES.md
 
 ## 1. 프로젝트 개요
 
@@ -85,7 +85,7 @@
   "본 프로젝트는 2022년 6~12월 스냅샷 데이터를 사용하며, 이는 최신 고객 행동이 아닌 특정 시점의
   이커머스 행동 패턴 분석임을 명시한다."
 * 이 결정의 근거와 트레이드오프는 위 갱신 내역 자체에 기록돼 있으며, 데이터 최신성 관련 한계는 `docs/limitations.md`에 기록한다.
-* 이 갱신은 최신성 기준만 대상으로 하며, CLAUDE.md 10번의 다른 중단 조건(연결성 부족, 매칭률 과소 등)은 그대로 유효하다.
+* 이 갱신은 최신성 기준만 대상으로 하며, PROJECT_GUIDELINES.md 10번의 다른 중단 조건(연결성 부족, 매칭률 과소 등)은 그대로 유효하다.
 
 ---
 
@@ -1127,7 +1127,7 @@ pytest와 SQL 테스트를 작성한다.
 
 ```text
 crm-targeting-intelligence/
-├── CLAUDE.md
+├── PROJECT_GUIDELINES.md
 ├── README.md
 ├── LICENSE
 ├── pyproject.toml
@@ -1279,7 +1279,7 @@ README 구성:
 
 ---
 
-# 35. Claude Code 작업 규칙
+# 35. 작업 규칙
 
 1. 사용자와 합의되지 않은 기준을 임의로 확정하지 않는다.
 2. 데이터 확인 전 라이프사이클 기준을 만들지 않는다.
@@ -1304,10 +1304,10 @@ README 구성:
 
 ---
 
-# 36. 현재 Claude Code에 내릴 첫 명령
+# 36. 초기 실행 지침
 
 ```text
-CLAUDE.md를 먼저 읽어라.
+PROJECT_GUIDELINES.md를 먼저 읽어라.
 
 현재는 Phase 1만 수행한다.
 

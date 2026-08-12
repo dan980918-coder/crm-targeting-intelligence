@@ -1,6 +1,6 @@
 # Phase 9 - LLM CRM 리포트 파이프라인
 
-## 파이프라인 구조 (CLAUDE.md 27번)
+## 파이프라인 구조 (PROJECT_GUIDELINES.md 27번)
 
 ```
 data/dashboard/*.csv (DuckDB SQL 결과, Phase 8에서 이미 Python이 계산·검증)
@@ -24,7 +24,7 @@ data/dashboard/*.csv (DuckDB SQL 결과, Phase 8에서 이미 Python이 계산·
 
 ## 결정 2 — LLM의 역할을 "액션 제안 + 가설 생성"으로만 제한
 
-CLAUDE.md 27번("LLM은 숫자를 계산하지 않는다")을 구조적으로 강제하기 위해,
+PROJECT_GUIDELINES.md 27번("LLM은 숫자를 계산하지 않는다")을 구조적으로 강제하기 위해,
 `CRMReportOutput.data_facts`와 `model_predictions`는 LLM이 생성하지 않고
 입력을 그대로 통과(passthrough)시킨다. LLM은 `recommended_actions`와
 `testable_hypotheses` 두 필드만 채운다 — 이렇게 하면 "입력 숫자와 출력
@@ -33,15 +33,15 @@ CLAUDE.md 27번("LLM은 숫자를 계산하지 않는다")을 구조적으로 �
 ## 결정 3 — 금지 표현을 사후 검사가 아니라 예외로 강제
 
 `src/llm/prompts.py`의 `FORBIDDEN_PHRASES` 목록(매출 개선/이탈률 개선/전환율
-향상/캠페인 효과 검증 등, CLAUDE.md 29번 근거)에 해당하는 문구가 LLM
+향상/캠페인 효과 검증 등, PROJECT_GUIDELINES.md 29번 근거)에 해당하는 문구가 LLM
 출력에 있으면 `report_generator.py`가 `ForbiddenClaimError`를 던져 **리포트
 자체를 반환하지 않는다** — 경고만 로그로 남기고 그대로 내보내는 방식보다
-안전하다고 판단했다(CLAUDE.md 15번 "오류를 숨기거나 임의로 값을 대체하지
+안전하다고 판단했다(PROJECT_GUIDELINES.md 15번 "오류를 숨기거나 임의로 값을 대체하지
 않는다"와 같은 맥락 — 여기서는 "위반을 숨기지 않고 실패시킨다"로 적용).
 
-## 품질 테스트 (CLAUDE.md 30번, `tests/unit/test_llm_report.py`, 24개 전부 mock 백엔드로 API 키 없이 실행 가능)
+## 품질 테스트 (PROJECT_GUIDELINES.md 30번, `tests/unit/test_llm_report.py`, 24개 전부 mock 백엔드로 API 키 없이 실행 가능)
 
-| CLAUDE.md 30번 요구 항목 | 테스트 |
+| PROJECT_GUIDELINES.md 30번 요구 항목 | 테스트 |
 |---|---|
 | 입력 숫자와 출력 숫자 일치 | `test_input_output_number_consistency` (passthrough 설계로 구조적 보장) |
 | 기간 정보 누락 여부 | `test_period_info_present` |

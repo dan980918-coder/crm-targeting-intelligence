@@ -1,6 +1,6 @@
 # Phase 4 - 고객 세그먼트 프로필
 
-기반 테이블: `mart_customer_segment` (규칙 기반, CLAUDE.md 17번 원칙 — 군집분석은 사용하지 않음)
+기반 테이블: `mart_customer_segment` (규칙 기반, PROJECT_GUIDELINES.md 17번 원칙 — 군집분석은 사용하지 않음)
 
 세그먼트는 `mart_customer_lifecycle`(Phase 4 라이프사이클, 데이터 기반 recency
 임계값 14/28/60일 — `docs/methodology.md` 참고) 8개 상태와 대부분 1:1
@@ -12,7 +12,7 @@
    (2026-08-08 추가 — 아래 3·4번 상세 참고, `docs/methodology.md` 2026-08-08
    항목).
 
-이 두 세분화로 세그먼트 총 개수는 9개다(CLAUDE.md 17번 원문은 8개 후보를
+이 두 세분화로 세그먼트 총 개수는 9개다(PROJECT_GUIDELINES.md 17번 원문은 8개 후보를
 예시했으나 취소선+갱신 이력으로 이 결정을 기록해뒀다). '구매_비활성_위험_고객'
 +'비활성_고객'은 여전히 세그먼트 레벨에서 하나(`구매_비활성형`)로 합친다
 (recency의 세밀한 구분은 lifecycle에 남겨두고, 세그먼트는 "무엇을 할지"
@@ -175,7 +175,7 @@
 
 ## 종합 코멘트
 
-CLAUDE.md 17번이 명시한 "군집분석은 규칙 기반 결과를 보완하는 탐색 용도로만
+PROJECT_GUIDELINES.md 17번이 명시한 "군집분석은 규칙 기반 결과를 보완하는 탐색 용도로만
 사용"이라는 원칙에 따라, 이번 세그먼트는 순수 규칙 기반으로만 구축했다.
 군집분석(K-means 등)은 Phase 6 모델링 단계에서 이 규칙 기반 세그먼트와
 모델 예측을 비교할 때 보완적으로 검토할 수 있다.
@@ -193,5 +193,5 @@ CLAUDE.md 17번이 명시한 "군집분석은 규칙 기반 결과를 보완하�
 - `sql/intermediate/int_customer_cart_behavior.sql` (2026-08-08, `median_seconds_add_to_remove` 추가)
 - `tests/data_quality/test_segment.py`
 - `docs/limitations.md` (category 신뢰도, price_bucket 비선형 관찰 — 2026-08-08 추가)
-- `CLAUDE.md` 17번 (세그먼트 8 → 9개, 취소선+갱신 이력 — 2026-08-08)
+- `PROJECT_GUIDELINES.md` 17번 (세그먼트 8 → 9개, 취소선+갱신 이력 — 2026-08-08)
 - `data/dashboard/segment_profile.csv`, `reports/figures/dashboard_segment_explorer.png` (2026-08-08 재생성)

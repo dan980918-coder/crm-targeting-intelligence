@@ -6,7 +6,7 @@
 -- 정정, reports/adhoc_category_repurchase_rate_n100plus.csv)에서 카테고리 간
 -- 재구매율 차이가 실제로 유의미함을 확인해(z=95.9, 55.5 등) feature로 승격했다.
 --
--- 미래 정보 누수 방지(CLAUDE.md 9번): 카테고리 재구매율을 전체 기간
+-- 미래 정보 누수 방지(PROJECT_GUIDELINES.md 9번): 카테고리 재구매율을 전체 기간
 -- 통합으로 한 번만 계산하지 않고, snapshot_date마다 그 시점 이전(event_ts <
 -- snapshot_date) 구매 occasion만으로 다시 계산한다. 그렇지 않으면 특정
 -- 고객의 미래(snapshot_date 이후) 재구매가 그 고객 자신의 feature 값에

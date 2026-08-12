@@ -1,8 +1,8 @@
 -- Grain: 1 row = 1 고객 x 1 snapshot_date
 -- Primary Key: (client_id, snapshot_date)
 --
--- Feature Window: snapshot_date 이전 28일 (CLAUDE.md 12번 예시값 채택)
--- Label Window: snapshot_date 이후 14일 AND 28일 둘 다 계산 (CLAUDE.md 18번이
+-- Feature Window: snapshot_date 이전 28일 (PROJECT_GUIDELINES.md 12번 예시값 채택)
+-- Label Window: snapshot_date 이후 14일 AND 28일 둘 다 계산 (PROJECT_GUIDELINES.md 18번이
 --   "14일과 28일을 비교 대상으로 명시"했으므로 하나를 고르지 않고 둘 다 생성)
 --
 -- snapshot_date 유효 범위 (우측 검열 원천 차단 — docs/methodology.md
@@ -14,7 +14,7 @@
 -- 기간이 겹치지 않도록 하기 위함. 결과: 9개 snapshot_date
 -- (2022-07-21 ~ 2022-11-10).
 --
--- 모집단: CLAUDE.md 18번 Model A("과거 구매 이력이 있는 고객")에 맞춰
+-- 모집단: PROJECT_GUIDELINES.md 18번 Model A("과거 구매 이력이 있는 고객")에 맞춰
 -- snapshot_date 이전에 구매 이력이 1건 이상 있는 고객만 포함. Model B(활동
 -- 고객 전체 대상 구매성향)용 스냅샷은 모집단이 훨씬 커서 별도 테이블로
 -- 분리하는 것이 합리적이라 판단해 이번 빌드에서는 제외함(추후 필요 시

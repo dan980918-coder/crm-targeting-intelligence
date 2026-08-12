@@ -1,7 +1,7 @@
 -- Grain: 1 row = 1 고객 x 1 snapshot_date
 -- Primary Key: (client_id, snapshot_date)
 --
--- CLAUDE.md 19번 Model B("향후 구매 가능성", "활동 고객" 대상)의 타겟
+-- PROJECT_GUIDELINES.md 19번 Model B("향후 구매 가능성", "활동 고객" 대상)의 타겟
 -- 테이블. mart_churn_target(구매 이력 있는 고객만 대상)과 달리, 아직 한 번도
 -- 구매하지 않았지만 구매 가능성이 있는 고객(예: 방문/검색이 활발한 탐색
 -- 고객)까지 포함한다 — 그렇지 않으면 이 라벨이 churn 라벨의 단순 반전에

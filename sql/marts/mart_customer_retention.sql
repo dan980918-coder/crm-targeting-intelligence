@@ -1,6 +1,6 @@
 -- Grain: 1 row = 1 cohort_week (첫 관측 구매 주차)
 -- Primary Key: cohort_week
--- 목적: 코호트별 7/14/28일 재구매율 (CLAUDE.md 14번에 이미 고정된 지표).
+-- 목적: 코호트별 7/14/28일 재구매율 (PROJECT_GUIDELINES.md 14번에 이미 고정된 지표).
 --
 -- 주의(우측 검열): 관측 종료일에 가까운 cohort_week는 N일 재구매 관측 창
 -- 자체가 실제 데이터 범위를 벗어난다 (예: 관측 종료 10일 전에 첫 구매한

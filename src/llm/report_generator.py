@@ -1,4 +1,4 @@
-"""Phase 9 - CRM 리포트 생성 오케스트레이션 (CLAUDE.md 27번 파이프라인)."""
+"""Phase 9 - CRM 리포트 생성 오케스트레이션 (PROJECT_GUIDELINES.md 27번 파이프라인)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from src.llm.schemas import CRMReportInput, CRMReportOutput
 
 
 class ForbiddenClaimError(RuntimeError):
-    """LLM 출력에 금지된 성과 표현이 포함된 경우 발생 (CLAUDE.md 29번)."""
+    """LLM 출력에 금지된 성과 표현이 포함된 경우 발생 (PROJECT_GUIDELINES.md 29번)."""
 
 
 def escape_tildes(text: str) -> str:
@@ -33,7 +33,7 @@ def generate_crm_report(report_input: CRMReportInput) -> CRMReportOutput:
         if bad_phrase:
             raise ForbiddenClaimError(
                 f"LLM 출력에 금지된 성과 표현 발견: '{bad_phrase}' (문장: {text!r}). "
-                "CLAUDE.md 29번 위반 — 리포트를 그대로 반환하지 않음."
+                "PROJECT_GUIDELINES.md 29번 위반 — 리포트를 그대로 반환하지 않음."
             )
 
     return CRMReportOutput(

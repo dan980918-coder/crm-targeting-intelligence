@@ -1,6 +1,6 @@
 # Methodology — 주요 결정 기록
 
-CLAUDE.md 35번 작업 규칙 17번("모든 주요 결정은 docs/methodology.md에 기록한다")에 따라,
+PROJECT_GUIDELINES.md 35번 작업 규칙 17번("모든 주요 결정은 docs/methodology.md에 기록한다")에 따라,
 프로젝트 진행 중 임의로 확정하지 않고 사용자와 합의한 주요 결정을 시간순으로 기록한다.
 
 ---
@@ -20,7 +20,7 @@ Phase 1 8.9(페이지 방문과 검색 검사)에서 `page_visit.url`이 공식 
 **고객 단위 탐색 퍼널**뿐이며, "어떤 상품을 보고 어떤 상품을 샀는가" 같은
 상품 추천/상품 단위 분석은 이 데이터로 만들 수 없다. 따라서 이 프로젝트는
 애초에 "다음에 살 상품 추천"이 아니라 **"어떤 고객을 CRM으로 우선 접촉할
-것인가"라는 고객 단위 타기팅 문제**로 스코프가 좁혀지며, 이는 CLAUDE.md
+것인가"라는 고객 단위 타기팅 문제**로 스코프가 좁혀지며, 이는 PROJECT_GUIDELINES.md
 1번(프로젝트 목적)이 이미 상품 추천이 아닌 고객 라이프사이클/CRM 타기팅으로
 설계된 것과 정합적이다. 이후 Phase 2\~9에서 "상품 추천"류 기능을 임의로
 추가하지 않는다.
@@ -34,7 +34,7 @@ Phase 1 8.9(페이지 방문과 검색 검사)에서 `page_visit.url`이 공식 
 `reports/phase1_recommendation.md`에서 제안한 3개 주제(A. 구매 비활성 위험
 예측+CRM 타기팅, B. 장바구니 이탈 특화, C. 라이프사이클 세그먼트 중심) 중
 사용자가 **A안(구매 비활성 위험 고객 식별 + CRM 타기팅)** 을 최종 확정했다.
-CLAUDE.md 원 설계(Phase 2\~10)와 1:1로 대응하는 주제로, 이후 모든 Phase는
+PROJECT_GUIDELINES.md 원 설계(Phase 2\~10)와 1:1로 대응하는 주제로, 이후 모든 Phase는
 A안을 기준으로 진행한다.
 
 ### 배경 — 우측 검열 문제
@@ -52,7 +52,7 @@ Phase 1 8.10에서 확인한 대로, 관측 종료(2022-12-08) 14일 이내에 �
 
 **스냅샷 설계로 검열 문제를 원천 차단한다 (후보 2번 채택).**
 
-CLAUDE.md 12번(`mart_customer_snapshot`의 Feature Window/Label Window 구조)과
+PROJECT_GUIDELINES.md 12번(`mart_customer_snapshot`의 Feature Window/Label Window 구조)과
 21번(시간순 데이터 분할, 미래 정보 누수 방지 원칙)을 그대로 활용해:
 
 - `snapshot_date`는 반드시 **관측 종료일(2022-12-08)로부터 label window
@@ -68,7 +68,7 @@ CLAUDE.md 12번(`mart_customer_snapshot`의 Feature Window/Label Window 구조)�
 - 여러 `snapshot_date`(예: 주 단위 롤링)를 관측 기간 내에서 뽑아 학습
   표본을 구성한다.
 
-**안전장치**: CLAUDE.md 31번 "Snapshot Feature·Label 분리" 테스트 항목에
+**안전장치**: PROJECT_GUIDELINES.md 31번 "Snapshot Feature·Label 분리" 테스트 항목에
 다음 데이터 테스트를 추가한다.
 
 > `mart_customer_snapshot`의 모든 행에 대해
@@ -84,10 +84,10 @@ CLAUDE.md 12번(`mart_customer_snapshot`의 Feature Window/Label Window 구조)�
 
 - 이미 설계된 아키텍처(Feature/Label Window)를 그대로 재사용해 추가 복잡도가
   거의 없다 — 고객 단위로 "검열 여부" 플래그를 별도로 관리하지 않아도 된다.
-- CLAUDE.md 20\~21번의 "단순 기준선 우선", "시간순 분할, 미래 누수 방지"
+- PROJECT_GUIDELINES.md 20\~21번의 "단순 기준선 우선", "시간순 분할, 미래 누수 방지"
   원칙과 완전히 정합적이다.
 - 생존분석(후보 3번)은 통계적으로 더 엄밀하지만 이 프로젝트 스코프 대비
-  구현·해석 비용이 크다고 판단해 채택하지 않았다(과설계 방지, CLAUDE.md
+  구현·해석 비용이 크다고 판단해 채택하지 않았다(과설계 방지, PROJECT_GUIDELINES.md
   "처음부터 복잡한 딥러닝/과설계 모델 지양" 정신과 부합).
 
 ### 트레이드오프
@@ -110,7 +110,7 @@ CLAUDE.md 12번(`mart_customer_snapshot`의 Feature Window/Label Window 구조)�
 
 ### 배경
 
-CLAUDE.md 16번은 라이프사이클 8\~9개 후보 상태를 제시하되 "기준은 임의로
+PROJECT_GUIDELINES.md 16번은 라이프사이클 8\~9개 후보 상태를 제시하되 "기준은 임의로
 결정하지 않는다. 고객별 구매간격과 행동 분포를 근거로 여러 기준을 비교한다"
 고 명시했다.
 
@@ -125,12 +125,12 @@ recency(마지막 구매 이후 경과일) 기준 4단계 경계값을 다음과
 | 구매 감소 ↔ 비활성 위험 | 28일 | 구매 간격 중앙값 × 3 — "고위험" 신호로 흔히 쓰이는 배수 |
 | 비활성 위험 ↔ 비활성 | 60일 | 구매 간격 p90(68.05일, Phase 1 8.7)을 반올림 — 정상 구매 패턴의 90%를 벗어나는 지점 |
 
-CLAUDE.md 18번이 이미 14일과 28일을 "비교 대상"으로 언급했는데, median
+PROJECT_GUIDELINES.md 18번이 이미 14일과 28일을 "비교 대상"으로 언급했는데, median
 기반 배수 계산 결과가 이 값들과 정확히 일치해 그대로 채택했다 — 즉 이
 값들은 공식 과제 관행을 그대로 빌려온 것이 아니라, 이 데이터셋의 실제
-구매 주기에서 독립적으로 도출한 뒤 CLAUDE.md의 제안과 교차 검증된 값이다.
+구매 주기에서 독립적으로 도출한 뒤 PROJECT_GUIDELINES.md의 제안과 교차 검증된 값이다.
 
-CLAUDE.md 16번 후보 9개 중 "반복구매 고객"과 "활성 구매 고객"은 상호
+PROJECT_GUIDELINES.md 16번 후보 9개 중 "반복구매 고객"과 "활성 구매 고객"은 상호
 배타적 상태로 만들기 어려워(둘 다 "최근 정상 구매 중"이라는 동일 개념)
 하나의 상태로 통합했다. `n_purchase_days` 컬럼은 남겨둬 필요 시 추후
 재분리 가능하게 했다.
@@ -276,9 +276,9 @@ slow_removal, 경계값 6시간은 add→remove 간격의 로그스케일 히스
 | 장바구니_이탈형 | fast_removal + slow_removal(명시적으로 제거함) | 365,487 | 20.62% | 장바구니 이탈 회수(Cart Recovery) — 이미 "거부" 신호가 있어 대안 상품 추천이 동일 상품 리마인더보다 적합 |
 | 장바구니_보류형(신설) | no_removal_recorded(제거 이벤트 없이 보류 중) | 1,406,964 | 79.38% | 체크아웃 완결 유도(Checkout Completion) — 거부 신호가 없어 가벼운 리마인더면 충분, 강한 프로모션은 불필요 |
 
-CLAUDE.md 17번은 원래 세그먼트 후보를 8개로 예시했으나, 문구를 삭제하지
+PROJECT_GUIDELINES.md 17번은 원래 세그먼트 후보를 8개로 예시했으나, 문구를 삭제하지
 않고 취소선 + `[2026-08-08 정책 갱신]` 표기로 이 결정과 근거를 남기는
-CLAUDE.md의 기존 관례를 따라 9개로 갱신했다.
+PROJECT_GUIDELINES.md의 기존 관례를 따라 9개로 갱신했다.
 
 ### 결과
 
@@ -289,7 +289,7 @@ CLAUDE.md의 기존 관례를 따라 9개로 갱신했다.
   세그먼트 9개 확인, 두 카트 세그먼트 합이 lifecycle과 일치, `cart_removal_subtype`이
   `장바구니_보류형`에서는 항상 `no_removal_recorded`, `장바구니_이탈형`에서는
   항상 `fast_removal`/`slow_removal`인지까지 검증.
-- 갱신 파일: `sql/marts/mart_customer_segment.sql`, `CLAUDE.md`(17번),
+- 갱신 파일: `sql/marts/mart_customer_segment.sql`, `PROJECT_GUIDELINES.md`(17번),
   `docs/data_dictionary.md`, `reports/phase4_segment_profile.md`,
   `scripts/build_dashboard_data.py`(SEGMENT_META에 `장바구니_보류형` 추가),
   `app/pages/5_Segment_Explorer.py`("세그먼트 8개" → "9개" 문구),
@@ -302,7 +302,7 @@ CLAUDE.md의 기존 관례를 따라 9개로 갱신했다.
 
 - `sql/marts/mart_customer_segment.sql`, `sql/intermediate/int_customer_cart_behavior.sql`
 - `reports/phase4_segment_profile.md` (장바구니_이탈형/장바구니_보류형 상세)
-- `CLAUDE.md` 17번 (취소선 + 갱신 이력)
+- `PROJECT_GUIDELINES.md` 17번 (취소선 + 갱신 이력)
 
 ---
 

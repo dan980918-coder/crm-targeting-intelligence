@@ -1,4 +1,4 @@
-"""Phase 7 - CRM 타기팅 시뮬레이션 (CLAUDE.md 23~24번).
+"""Phase 7 - CRM 타기팅 시뮬레이션 (PROJECT_GUIDELINES.md 23~24번).
 
 Model A(churn_target), Model B(purchase_propensity) 각각의 테스트셋(out-of-sample,
 2022-10-27/11-10)에서 정책별(무작위/최근성/모델) 접촉 비율(5/10/20/30%)에

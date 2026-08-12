@@ -1,4 +1,4 @@
-"""Phase 9 - LLM 프롬프트 및 금지 표현 검사 (CLAUDE.md 28~29번)."""
+"""Phase 9 - LLM 프롬프트 및 금지 표현 검사 (PROJECT_GUIDELINES.md 28~29번)."""
 
 from __future__ import annotations
 

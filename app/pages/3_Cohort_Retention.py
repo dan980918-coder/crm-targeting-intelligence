@@ -13,7 +13,7 @@ inject_global_css()
 st.title("코호트 & 리텐션")
 show_data_period_notice()
 
-st.caption("가입일이 없어 첫 관측 구매 주차를 코호트 기준으로 사용합니다 (CLAUDE.md 14번 고정 정의).")
+st.caption("가입일이 없어 첫 관측 구매 주차를 코호트 기준으로 사용합니다 (PROJECT_GUIDELINES.md 14번 고정 정의).")
 
 df = load_cohort_retention()
 

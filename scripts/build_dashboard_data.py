@@ -1,6 +1,6 @@
 """Phase 8 - Streamlit 대시보드용 집계 데이터를 data/dashboard/에 내보낸다.
 
-CLAUDE.md 원칙: 대시보드는 3GB+ DuckDB(특히 page_visit 1.99억 행)를 라이브로
+PROJECT_GUIDELINES.md 원칙: 대시보드는 3GB+ DuckDB(특히 page_visit 1.99억 행)를 라이브로
 쿼리하지 않고, 여기서 미리 집계한 작은 파일만 읽는다.
 """
 

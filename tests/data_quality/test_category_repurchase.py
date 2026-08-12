@@ -1,6 +1,6 @@
 """카테고리별 재구매율 feature 데이터 품질 테스트 (2026-08-08 추가).
 
-CLAUDE.md 9번 "미래 정보 누수 방지 테스트를 작성한다" 적용 대상.
+PROJECT_GUIDELINES.md 9번 "미래 정보 누수 방지 테스트를 작성한다" 적용 대상.
 int_customer_category_repurchase_by_snapshot이 snapshot_date마다 그 시점
 이전 데이터로만 재계산됐는지, 최소 표본 기준이 실제로 지켜졌는지,
 mart_customer_snapshot/mart_purchase_propensity의 avg_category_repurchase_rate가

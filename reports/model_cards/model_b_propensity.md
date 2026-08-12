@@ -38,7 +38,7 @@ feature 자체가 NULL이고, 이미 has_purchase_history 등 훨씬 강한 신�
   mart_purchase_propensity 항목)
 - Model A와 Lift 수치를 직접 비교하면 안 됨(라벨 기저율이 달라 상한이
   다름) — `reports/phase6_modeling_results.md` "Lift 해석에 대한 일반적 교훈" 참고
-- 실제 캠페인 전환율 개선은 검증되지 않음 (CLAUDE.md 5번)
+- 실제 캠페인 전환율 개선은 검증되지 않음 (PROJECT_GUIDELINES.md 5번)
 
 ## 재현
 `python3 scripts/train_model_b.py`
