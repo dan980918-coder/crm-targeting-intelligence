@@ -29,7 +29,7 @@ PROJECT_GUIDELINES.md 원 규칙상 이는 10번 "Phase 1 중단 조건"("타임
 "데이터 시점 투명 명시" 방식으로 전환하고 Phase 1을 계속 진행하기로 결정했다.
 
 - 관련 한계 기록: [`docs/limitations.md`](../docs/limitations.md) (1번 항목)
-- PROJECT_GUIDELINES.md 2번("중요한 검증 조건"), 10번("Phase 1 중단 조건") 섹션에 인라인 갱신 반영
+- PROJECT_GUIDELINES.md 10번("Phase 1 중단 조건") 섹션에 인라인 갱신 반영
 
 ## 생성 파일
 
