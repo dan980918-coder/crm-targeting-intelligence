@@ -338,6 +338,79 @@ def fig11_targeting_simulation():
     savefig(fig, "11_targeting_simulation_results.png")
 
 
+# ---------------- 결과 12: 구매자 909,210명 경로 분해 (README 인사이트 1) ----------------
+def fig12_buyer_path_breakdown():
+    df = pd.read_csv("reports/tables/phase3_funnel_buyer_path_breakdown.csv")
+    df = df[df["is_buyer"].astype(str) == "True"].copy()
+    label_map = {
+        ("O", "O"): "탐색O · 장바구니O",
+        ("O", "X"): "탐색O · 장바구니X",
+        ("X", "O"): "탐색X · 장바구니O",
+        ("X", "X"): "탐색X · 장바구니X (기록 없는 구매)",
+    }
+    df["label"] = [label_map[(e, c)] for e, c in zip(df["has_explore"], df["has_cart"])]
+    df = df.sort_values("n_customers", ascending=True)
+
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    colors = ["#C44E52" if "기록 없는" in l else "#4C72B0" for l in df["label"]]
+    bars = ax.barh(df["label"], df["n_customers"], color=colors)
+    for b, n, pct in zip(bars, df["n_customers"], df["pct_of_buyers"]):
+        ax.text(b.get_width(), b.get_y() + b.get_height() / 2, f"  {n:,.0f}명 ({pct:.2f}%)", va="center", fontsize=10)
+    ax.set_xlabel("구매자 수 (전체 909,210명 중)")
+    ax.set_title("구매자의 탐색·장바구니 기록 유무별 경로 분해")
+    ax.set_xlim(0, df["n_customers"].max() * 1.35)
+    savefig(fig, "12_buyer_path_breakdown.png")
+
+
+# ---------------- 결과 13: 장바구니 세그먼트 3분할 (README 인사이트 2) ----------------
+def fig13_cart_segment_split():
+    con = get_con()
+    df = con.sql(
+        """
+        SELECT
+            CASE WHEN segment = '장바구니_보류형' THEN '장바구니_보류형\n(제거 이벤트 없음, 미결정)'
+                 WHEN cart_removal_subtype = 'fast_removal' THEN '장바구니_이탈형 - fast_removal\n(6시간 이내 제거)'
+                 ELSE '장바구니_이탈형 - slow_removal\n(6시간 초과 후 제거)' END AS grp,
+            COUNT(*) AS n
+        FROM mart_customer_segment
+        WHERE segment IN ('장바구니_보류형', '장바구니_이탈형')
+        GROUP BY 1
+        """
+    ).df().sort_values("n", ascending=True)
+    total = df["n"].sum()
+
+    fig, ax = plt.subplots(figsize=(9, 4))
+    bars = ax.barh(df["grp"], df["n"], color=["#DD8452", "#C44E52", "#4C72B0"])
+    for b, n in zip(bars, df["n"]):
+        ax.text(b.get_width(), b.get_y() + b.get_height() / 2, f"  {n:,.0f}명 ({n/total*100:.1f}%)", va="center", fontsize=10)
+    ax.set_xlabel("고객 수 (장바구니 활동 있는 비구매자 1,772,451명 중)")
+    ax.set_title("장바구니 미전환 고객 3분할: 보류 vs 이탈(빠름/느림)")
+    ax.set_xlim(0, df["n"].max() * 1.3)
+    savefig(fig, "13_cart_segment_split.png")
+
+
+# ---------------- 결과 14: 카테고리별 재구매율 (README 인사이트 5) ----------------
+def fig14_category_repurchase_rate():
+    df = pd.read_csv("reports/adhoc_category_repurchase_rate_n100plus.csv")
+    overall_avg = df["repurchase_rate_pct"].mean()
+    top = df.sort_values("repurchase_rate_pct", ascending=False).head(2)
+
+    labels = ["전체 평균\n(표본 100명+ 카테고리 2,074개)"] + [
+        f"카테고리 {int(r.category)}\n(고객 {r.n_customers:,.0f}명)" for r in top.itertuples()
+    ]
+    values = [overall_avg] + list(top["repurchase_rate_pct"])
+    colors = ["#6B7280", "#C44E52", "#DD8452"]
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    bars = ax.bar(labels, values, color=colors)
+    for b, v in zip(bars, values):
+        ax.text(b.get_x() + b.get_width() / 2, v, f"{v:.2f}%", ha="center", va="bottom", fontsize=11)
+    ax.set_ylabel("재구매율 (%)")
+    ax.set_title("카테고리별 재구매율 — 전체 평균 vs 상위 카테고리")
+    ax.set_ylim(0, max(values) * 1.2)
+    savefig(fig, "14_category_repurchase_rate.png")
+
+
 if __name__ == "__main__":
     steps = [
         fig01_daily_event_volume,
@@ -351,6 +424,9 @@ if __name__ == "__main__":
         fig09_segment_distribution,
         fig10_model_roc_lift,
         fig11_targeting_simulation,
+        fig12_buyer_path_breakdown,
+        fig13_cart_segment_split,
+        fig14_category_repurchase_rate,
     ]
     for step in steps:
         print(f"\n=== {step.__name__} ===")

@@ -222,6 +222,8 @@ Phase 4\~6에서 나온 핵심 발견을 정리했다.
    "탐색량이 많을수록 구매 가능성이 높다"는 결론은 **탐색 기록이 있는
    구매자 집단 안에서만** 유효하다.
 
+   ![구매자 909,210명 경로 분해](reports/figures/12_buyer_path_breakdown.png)
+
 2. **장바구니 세그먼트는 하나가 아니라 최소 셋이다.** "장바구니에 담고
    안 삼"이라는 단일 정의 아래 실제로는 (a) 담은 지 16분 만에 뺀
    `fast_removal`(72.0%, 이미 "이건 아니다" 판단 후 이탈 — 대안 상품 추천이
@@ -229,6 +231,8 @@ Phase 4\~6에서 나온 핵심 발견을 정리했다.
    아까운" 고객군 — 강한 프로모션이 정당화됨), (c) 아예 제거 이벤트가 없는
    `장바구니_보류형`(79.38%, 미결정 — 가벼운 리마인더면 충분)으로 나뉜다.
    같은 신호(장바구니 미전환)를 하나의 CRM 액션으로 묶으면 안 된다는 근거다.
+
+   ![장바구니 세그먼트 3분할](reports/figures/13_cart_segment_split.png)
 
 3. **구매 비활성 예측(Model A)은 "통계적으로 낫다"와 "실무적으로 쓸모
    있다"가 갈린다.** LightGBM AUC 0.754가 최선 규칙(최근성, 0.669)보다
@@ -245,6 +249,8 @@ Phase 4\~6에서 나온 핵심 발견을 정리했다.
    Model A보다 높다 — 모집단에 "전혀 관여 안 함"과 "매우 활발함" 양극단이
    섞여 있어 모델이 구분할 신호가 더 명확하기 때문으로 보인다.
 
+   ![ROC/Lift curve 비교 (Model A vs Model B)](reports/figures/10_model_roc_lift_curves.png)
+
 5. **"카테고리별 재구매율은 표본 부족으로 계산 불가"는 틀린 진단이었다.**
    실제로 최소 표본(카테고리당 100명) 기준을 적용하면 2,074개 카테고리
    (32.7%)가 통과하고 전체 구매관계의 93.6%를 커버한다. 이 범위에서
@@ -254,7 +260,7 @@ Phase 4\~6에서 나온 핵심 발견을 정리했다.
    주의가 필요하다(Model A에서 13개 중 9위, Model B에서 8개 중 꼴찌 —
    모집단 구성에 따라 유용성이 달라짐).
 
-![ROC/Lift curve 비교](reports/figures/10_model_roc_lift_curves.png)
+   ![카테고리별 재구매율](reports/figures/14_category_repurchase_rate.png)
 
 상세: [`reports/phase6_modeling_results.md`](reports/phase6_modeling_results.md),
 가설 검증 전체 기록: [`docs/hypotheses.md`](docs/hypotheses.md)
