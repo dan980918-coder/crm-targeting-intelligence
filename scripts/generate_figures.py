@@ -293,6 +293,7 @@ def fig10_model_roc_lift():
     axes[0].legend()
 
     # Lift curve
+    lifts_at_10 = {}
     for y, score, name, color in [(y_a, score_a, "Model A (churn_14d)", "#C44E52"), (y_b, score_b, "Model B (will_purchase_14d)", "#4C72B0")]:
         order = np.argsort(-score)
         y_sorted = np.asarray(y)[order]
@@ -304,7 +305,29 @@ def fig10_model_roc_lift():
             k = max(1, int(n * pct / 100))
             lifts.append((y_sorted[:k].mean() / base_rate) if base_rate > 0 else np.nan)
         axes[1].plot(pct_range, lifts, label=name, color=color, linewidth=2)
+        lifts_at_10[name] = lifts[9]  # pct_range[9] == 10(%)
     axes[1].axhline(1.0, color="k", linestyle="--", linewidth=1, label="무작위 (Lift=1.0)")
+
+    # 강조 1: Model A — Lift@10%가 무작위 기준선 근처에 눌려 있음 (인사이트 3, "1.0~1.07")
+    lift_a_10 = lifts_at_10["Model A (churn_14d)"]
+    axes[1].scatter([10], [lift_a_10], s=80, facecolors="none", edgecolors="#C44E52", linewidths=2, zorder=5)
+    axes[1].annotate(
+        "Lift 개선 미미\n(1.0~1.07)",
+        xy=(10, lift_a_10), xytext=(28, 2.8),
+        fontsize=9, color="#C44E52", fontweight="bold", ha="center",
+        arrowprops=dict(arrowstyle="->", color="#C44E52", lw=1.5),
+    )
+
+    # 강조 2: Model B — Lift@10% (인사이트 4에서 언급한 6.23배)
+    lift_b_10 = lifts_at_10["Model B (will_purchase_14d)"]
+    axes[1].scatter([10], [lift_b_10], s=80, facecolors="none", edgecolors="#4C72B0", linewidths=2, zorder=5)
+    axes[1].annotate(
+        f"{lift_b_10:.2f}배",
+        xy=(10, lift_b_10), xytext=(35, lift_b_10 + 1.8),
+        fontsize=10, color="#4C72B0", fontweight="bold", ha="center",
+        arrowprops=dict(arrowstyle="->", color="#4C72B0", lw=1.5),
+    )
+
     axes[1].set_xlabel("접촉 비율 (상위 %)")
     axes[1].set_ylabel("Lift")
     axes[1].set_title("Lift Curve (test set, LightGBM)")
@@ -349,13 +372,32 @@ def fig12_buyer_path_breakdown():
         ("X", "X"): "탐색X · 장바구니X (기록 없는 구매)",
     }
     df["label"] = [label_map[(e, c)] for e, c in zip(df["has_explore"], df["has_cart"])]
-    df = df.sort_values("n_customers", ascending=True)
+    df = df.sort_values("n_customers", ascending=True).reset_index(drop=True)
 
     fig, ax = plt.subplots(figsize=(9, 4.5))
     colors = ["#C44E52" if "기록 없는" in l else "#4C72B0" for l in df["label"]]
     bars = ax.barh(df["label"], df["n_customers"], color=colors)
-    for b, n, pct in zip(bars, df["n_customers"], df["pct_of_buyers"]):
-        ax.text(b.get_width(), b.get_y() + b.get_height() / 2, f"  {n:,.0f}명 ({pct:.2f}%)", va="center", fontsize=10)
+    for b, n, pct, lbl in zip(bars, df["n_customers"], df["pct_of_buyers"], df["label"]):
+        is_highlight = "기록 없는" in lbl
+        text = f"  {n:,.0f}명 ({pct:.2f}%)" + ("  ← 인사이트 1" if is_highlight else "")
+        ax.text(
+            b.get_width(), b.get_y() + b.get_height() / 2, text, va="center", fontsize=10,
+            fontweight="bold" if is_highlight else "normal",
+            color="#8B0000" if is_highlight else "black",
+        )
+
+    # 강조: "탐색X·장바구니X (기록 없는 구매)" 막대 — 인사이트 1(28.46%)
+    hpos = df.index[df["label"].str.contains("기록 없는")][0]
+    hbar = bars[hpos]
+    ax.add_patch(plt.Rectangle(
+        (0, hbar.get_y()), hbar.get_width(), hbar.get_height(),
+        fill=False, edgecolor="#8B0000", linewidth=2.5, zorder=5,
+    ))
+    ax.annotate(
+        "탐색 기록 없음",
+        xy=(hbar.get_width() * 0.15, hbar.get_y() + hbar.get_height() / 2),
+        fontsize=10, fontweight="bold", color="white", va="center", ha="left",
+    )
     ax.set_xlabel("구매자 수 (전체 909,210명 중)")
     ax.set_title("구매자의 탐색·장바구니 기록 유무별 경로 분해")
     ax.set_xlim(0, df["n_customers"].max() * 1.35)
@@ -376,13 +418,33 @@ def fig13_cart_segment_split():
         WHERE segment IN ('장바구니_보류형', '장바구니_이탈형')
         GROUP BY 1
         """
-    ).df().sort_values("n", ascending=True)
+    ).df().sort_values("n", ascending=True).reset_index(drop=True)
     total = df["n"].sum()
 
+    colors = ["#C44E52" if "보류형" in g else ("#DD8452" if "fast" in g else "#4C72B0") for g in df["grp"]]
     fig, ax = plt.subplots(figsize=(9, 4))
-    bars = ax.barh(df["grp"], df["n"], color=["#DD8452", "#C44E52", "#4C72B0"])
-    for b, n in zip(bars, df["n"]):
-        ax.text(b.get_width(), b.get_y() + b.get_height() / 2, f"  {n:,.0f}명 ({n/total*100:.1f}%)", va="center", fontsize=10)
+    bars = ax.barh(df["grp"], df["n"], color=colors)
+    for b, n, g in zip(bars, df["n"], df["grp"]):
+        is_highlight = "보류형" in g
+        text = f"  {n:,.0f}명 ({n/total*100:.1f}%)" + ("  ← 인사이트 2" if is_highlight else "")
+        ax.text(
+            b.get_width(), b.get_y() + b.get_height() / 2, text, va="center", fontsize=10,
+            fontweight="bold" if is_highlight else "normal",
+            color="#8B0000" if is_highlight else "black",
+        )
+
+    # 강조: 장바구니_보류형(제거 이벤트 없음) 막대 — 인사이트 2(79.38%)
+    hpos = df.index[df["grp"].str.contains("보류형")][0]
+    hbar = bars[hpos]
+    ax.add_patch(plt.Rectangle(
+        (0, hbar.get_y()), hbar.get_width(), hbar.get_height(),
+        fill=False, edgecolor="#8B0000", linewidth=2.5, zorder=5,
+    ))
+    ax.annotate(
+        "제거 이벤트 없음",
+        xy=(hbar.get_width() * 0.1, hbar.get_y() + hbar.get_height() / 2),
+        fontsize=10, fontweight="bold", color="white", va="center", ha="left",
+    )
     ax.set_xlabel("고객 수 (장바구니 활동 있는 비구매자 1,772,451명 중)")
     ax.set_title("장바구니 미전환 고객 3분할: 보류 vs 이탈(빠름/느림)")
     ax.set_xlim(0, df["n"].max() * 1.3)
@@ -405,6 +467,19 @@ def fig14_category_repurchase_rate():
     bars = ax.bar(labels, values, color=colors)
     for b, v in zip(bars, values):
         ax.text(b.get_x() + b.get_width() / 2, v, f"{v:.2f}%", ha="center", va="bottom", fontsize=11)
+
+    # 강조: 카테고리 1096(28.59%, z=95.9) — 인사이트 5에서 유의미 사례로 인용한 값
+    hbar = bars[1]
+    ax.add_patch(plt.Rectangle(
+        (hbar.get_x(), 0), hbar.get_width(), hbar.get_height(),
+        fill=False, edgecolor="#8B0000", linewidth=2.5, zorder=5,
+    ))
+    ax.annotate(
+        "z=95.9\n(우연 아님)",
+        xy=(hbar.get_x() + hbar.get_width() / 2, hbar.get_height()),
+        xytext=(hbar.get_x() + hbar.get_width() / 2, hbar.get_height() * 0.55),
+        fontsize=10, fontweight="bold", color="white", ha="center", va="center",
+    )
     ax.set_ylabel("재구매율 (%)")
     ax.set_title("카테고리별 재구매율 — 전체 평균 vs 상위 카테고리")
     ax.set_ylim(0, max(values) * 1.2)
