@@ -93,6 +93,25 @@ def prepare_lr_features(spec: ModelSpec, train, val, test):
     return X_train, X_val, X_test
 
 
+def fit_lightgbm(train_feat: pd.DataFrame, y_train, val_feat: pd.DataFrame, y_val):
+    """scripts/train_model_a.py, scripts/train_model_b.py, scripts/build_targeting_simulation.py가
+    공유하는 LightGBM 학습 설정 — 하이퍼파라미터를 한 곳에서만 정의한다."""
+    train_ds = lgb.Dataset(train_feat, label=y_train)
+    val_ds = lgb.Dataset(val_feat, label=y_val, reference=train_ds)
+    return lgb.train(
+        params={
+            "objective": "binary",
+            "metric": "auc",
+            "verbosity": -1,
+            "seed": 42,
+        },
+        train_set=train_ds,
+        num_boost_round=500,
+        valid_sets=[val_ds],
+        callbacks=[lgb.early_stopping(30, verbose=False)],
+    )
+
+
 def run_for_label(spec: ModelSpec, df: pd.DataFrame, label_col: str):
     train, val, test = split_data(df)
     y_train = train[label_col].values
@@ -131,20 +150,7 @@ def run_for_label(spec: ModelSpec, df: pd.DataFrame, label_col: str):
         for col in spec.lgb_cast_int_cols:
             d[col] = d[col].astype(int)
 
-    train_ds = lgb.Dataset(train_feat, label=y_train)
-    val_ds = lgb.Dataset(val_feat, label=y_val, reference=train_ds)
-    gbm = lgb.train(
-        params={
-            "objective": "binary",
-            "metric": "auc",
-            "verbosity": -1,
-            "seed": 42,
-        },
-        train_set=train_ds,
-        num_boost_round=500,
-        valid_sets=[val_ds],
-        callbacks=[lgb.early_stopping(30, verbose=False)],
-    )
+    gbm = fit_lightgbm(train_feat, y_train, val_feat, y_val)
     record("LightGBM", "val", y_val, gbm.predict(val_feat))
     record("LightGBM", "test", y_test, gbm.predict(test_feat))
 

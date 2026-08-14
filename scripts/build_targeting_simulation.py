@@ -15,7 +15,6 @@ import sys
 from pathlib import Path
 
 import duckdb
-import lightgbm as lgb
 import pandas as pd
 import yaml
 
@@ -32,23 +31,11 @@ from src.models.baselines import (
     recency_propensity_score,
 )
 from src.models.metrics import customers_needed_for_recall, precision_recall_lift_at_k
+from src.models.train_pipeline import fit_lightgbm
 
 CONFIG_PATH = Path("config/paths.yaml")
 REPORT_DIR = Path("reports")
 CONTACT_RATES = [5, 10, 20, 30]
-
-
-def train_lgb(train_df, val_df, feature_cols, label_col):
-    train_ds = lgb.Dataset(train_df[feature_cols], label=train_df[label_col])
-    val_ds = lgb.Dataset(val_df[feature_cols], label=val_df[label_col], reference=train_ds)
-    gbm = lgb.train(
-        params={"objective": "binary", "metric": "auc", "verbosity": -1, "seed": 42},
-        train_set=train_ds,
-        num_boost_round=500,
-        valid_sets=[val_ds],
-        callbacks=[lgb.early_stopping(30, verbose=False)],
-    )
-    return gbm
 
 
 def compare_model_vs_rule(model_name, label_col, y_true, model_score, rule_score, rule_name="최근성_규칙"):
@@ -110,7 +97,7 @@ def main():
     df_a = con.sql("SELECT * FROM mart_churn_target").df()
     train_a, val_a, test_a = split_a(df_a)
     for label_col in ["churn_14d", "churn_28d"]:
-        gbm = train_lgb(train_a, val_a, A_FEATURES, label_col)
+        gbm = fit_lightgbm(train_a[A_FEATURES], train_a[label_col].values, val_a[A_FEATURES], val_a[label_col].values)
         y_test = test_a[label_col].values
         model_score = gbm.predict(test_a[A_FEATURES])
         recency_score = recency_churn_score(test_a["days_since_last_purchase"])
@@ -132,7 +119,10 @@ def main():
     test_b_feat = test_b.copy(); test_b_feat["has_purchase_history"] = test_b_feat["has_purchase_history"].astype(int)
 
     for label_col in ["will_purchase_14d", "will_purchase_28d"]:
-        gbm = train_lgb(train_b_feat, val_b_feat, B_FEATURES, label_col)
+        gbm = fit_lightgbm(
+            train_b_feat[B_FEATURES], train_b_feat[label_col].values,
+            val_b_feat[B_FEATURES], val_b_feat[label_col].values,
+        )
         y_test = test_b[label_col].values
         model_score = gbm.predict(test_b_feat[B_FEATURES])
         recency_score = recency_propensity_score(test_b["days_since_last_purchase"], test_b["has_purchase_history"])
