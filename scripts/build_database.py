@@ -63,7 +63,11 @@ def main() -> None:
 
     con = duckdb.connect(str(db_path))
 
+    # macros는 staging 뷰가 참조하므로(예: is_burst_repeat) staging보다
+    # 먼저 생성돼야 한다. 알파벳순 glob에 맡기지 않고 레이어 자체를
+    # staging 앞에 두어 순서를 보장한다.
     layer_dirs = [
+        ("macros", Path(paths["sql_macros_dir"])),
         ("staging", Path(paths["sql_staging_dir"])),
         ("intermediate", Path(paths["sql_intermediate_dir"])),
         ("marts", Path(paths["sql_marts_dir"])),

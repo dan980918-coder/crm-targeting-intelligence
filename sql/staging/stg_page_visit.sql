@@ -14,12 +14,8 @@ SELECT
     client_id,
     event_ts,
     url,
-    COALESCE(
-        date_diff(
-            'second',
-            LAG(event_ts) OVER (PARTITION BY client_id, url ORDER BY event_ts),
-            event_ts
-        ) BETWEEN 0 AND 5,
-        FALSE
+    is_burst_repeat(
+        event_ts,
+        LAG(event_ts) OVER (PARTITION BY client_id, url ORDER BY event_ts)
     ) AS is_burst_repeat_5s
 FROM casted;

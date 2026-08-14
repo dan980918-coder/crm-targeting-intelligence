@@ -9,6 +9,7 @@ dashboard_data_dir: data/dashboard
 
 database_path: data/processed/crm.duckdb
 
+sql_macros_dir: sql/macros
 sql_staging_dir: sql/staging
 sql_intermediate_dir: sql/intermediate
 sql_marts_dir: sql/marts
