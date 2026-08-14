@@ -1,7 +1,7 @@
 -- Grain: 1 row = 1 고객 (add_to_cart 또는 remove_from_cart 중 하나라도 있는 고객)
 -- Primary Key: client_id
 --
--- median_seconds_add_to_remove (2026-08-08 추가): 고객별 (add_ts, 그 이후
+-- median_seconds_add_to_remove: 고객별 (add_ts, 그 이후
 -- 첫 remove_ts) 쌍의 간격 중앙값. 전체 분포를 로그스케일 히스토그램으로
 -- 보면 뚜렷한 이봉(bimodal) 형태다 — 짧은 쪽 봉우리(수 분)와 긴 쪽 봉우리
 -- (수일~수주) 사이 계곡(valley)이 약 15,399~26,068초(4.3~7.2시간) 구간에

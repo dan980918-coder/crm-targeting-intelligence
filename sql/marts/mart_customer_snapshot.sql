@@ -3,10 +3,10 @@
 --
 -- Feature Window: snapshot_date 이전 28일 (PROJECT_GUIDELINES.md 12번 예시값 채택)
 -- Label Window: snapshot_date 이후 14일 AND 28일 둘 다 계산 (PROJECT_GUIDELINES.md 18번이
---   "14일과 28일을 비교 대상으로 명시"했으므로 하나를 고르지 않고 둘 다 생성)
+--   14일 기준과 함께 28일 기준도 비교 대상으로 언급했으므로 하나를 고르지 않고 둘 다 생성)
 --
--- snapshot_date 유효 범위 (우측 검열 원천 차단 — docs/methodology.md
--- 2026-08-05 "우측 검열 고객 처리 방침" 결정 적용):
+-- snapshot_date 유효 범위 (우측 검열 원천 차단 — docs/methodology.md의
+-- "우측 검열 고객 처리 방침" 결정 적용):
 --   snapshot_date >= 관측시작일 + 28일 (feature window 전체 확보)
 --   snapshot_date <= 관측종료일 - 28일 (두 라벨 중 더 엄격한 28일 기준으로
 --     맞춤 — 14일 라벨은 자동으로 안전 범위에 포함됨)
@@ -20,7 +20,7 @@
 -- 분리하는 것이 합리적이라 판단해 이번 빌드에서는 제외함(추후 필요 시
 -- mart_activity_snapshot 등으로 별도 구축).
 --
--- avg_category_repurchase_rate (2026-08-08 추가): 고객이 snapshot_date 이전에
+-- avg_category_repurchase_rate: 고객이 snapshot_date 이전에
 -- 구매한 카테고리들의 재구매율(int_customer_category_repurchase_avg_by_snapshot,
 -- snapshot_date마다 그 시점 이전 데이터로만 재계산 — 미래 누수 없음) 평균.
 -- 원래 이 mart 안에 인라인 CTE로 계산했으나, 이 파일의 기존 무거운 조인과

@@ -4,7 +4,7 @@
 --
 -- 주의: 한 번의 결제(order)에 여러 상품이 담기면 client_id+timestamp가 완전히
 -- 동일한 여러 행으로 기록된다(동일 타임스탬프 재등장 비율 63.72% 확인,
--- 2026-08-05 intermediate 레이어 검증 중 발견). 따라서 "구매 순번/간격"은
+-- intermediate 레이어 검증 중 발견). 따라서 "구매 순번/간격"은
 -- 원본 행 단위가 아니라 DISTINCT (client_id, event_ts) = "구매 occasion" 단위로
 -- 계산해야 한다 (Phase 1 8.7 검증 스크립트와 동일 정의 — ts=prev_ts 쌍은 간격
 -- 계산에서 제외). 원본 행 단위 순번이 필요하면 별도로 raw_row_seq를 쓴다.

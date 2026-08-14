@@ -6,7 +6,8 @@
 -- 값과 동일하게 유지 (docs/decisions_pending_review.md 참고, 새로운 판단 아님).
 -- 참고: 우측 검열 문제 자체는 Phase 5 mart_customer_snapshot 설계 단계에서
 -- snapshot_date를 관측 종료일 - label window 이전으로 제한하는 방식으로
--- 원천 차단하기로 이미 결정됨 (docs/methodology.md 2026-08-05 항목). 이 테이블의
+-- 원천 차단하기로 이미 결정됨 (docs/methodology.md의 "우측 검열 고객 처리
+-- 방침" 결정 참고). 이 테이블의
 -- is_right_censor_candidate 플래그는 그 결정을 대체하지 않는 진단/참고용 컬럼.
 CREATE OR REPLACE TABLE int_customer_observation_period AS
 WITH all_events AS (

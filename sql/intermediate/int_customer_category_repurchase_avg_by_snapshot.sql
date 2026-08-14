@@ -4,7 +4,7 @@
 -- 목적: 고객 단위 feature "이 고객이 구매한 카테고리들의 평균 재구매율"을
 -- mart_customer_snapshot(Model A)과 mart_purchase_propensity(Model B) 양쪽이
 -- 동일 정의로 재사용하기 위한 lookup. 원래 각 mart 파일 안에 인라인 CTE로
--- 넣었으나(2026-08-08), mart_purchase_propensity.sql의 기존 무거운 조인
+-- 넣었으나, mart_purchase_propensity.sql의 기존 무거운 조인
 -- (activity_before, 46.9M행 int_customer_daily_activity 기반)과 한 쿼리
 -- 플랜 안에서 합쳐지면서 8GB 메모리 환경에서 OOM이 발생해 별도 테이블로
 -- 분리했다 — 계산을 한 번만 하고 양쪽 mart는 가벼운 LEFT JOIN만 하면 되므로

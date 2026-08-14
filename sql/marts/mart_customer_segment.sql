@@ -7,9 +7,9 @@
 -- 탐색형" vs "저관여 탐색형"으로, '장바구니_고객'은 아래 설명대로
 -- '장바구니_이탈형'/'장바구니_보류형'으로 각각 세분화한다 — 결과 세그먼트는
 -- 총 9개(PROJECT_GUIDELINES.md 17번 원문은 8개 후보를 예시했으나, 이 갱신은 사용자
--- 승인 하에 이루어짐 — PROJECT_GUIDELINES.md 17번 본문의 취소선+갱신 이력 참고).
+-- 승인 하에 이루어짐).
 --
--- 세분화 기준 (데이터 기반, 2026-08-07 갱신 — docs/methodology.md 참고):
+-- 세분화 기준 (데이터 기반 — docs/methodology.md 참고):
 -- 탐색_고객 중 n_page_visit >= 10(해당 그룹의 p90, 전환율 변곡점은 아니지만
 -- 상위 10% cut + 과접촉 방지라는 실무적 근거는 유효) 이거나 검색을 방문보다
 -- 먼저 한 경우(search_first: 검색과 방문을 모두 했고 첫 검색이 첫 방문보다
@@ -28,8 +28,8 @@
 -- Explorer는 세그먼트를, Lifecycle 페이지는 lifecycle을 보여주는 방식으로
 -- 역할 분리). 이 병합 자체는 아래 장바구니_고객 분리와 별개 판단이다.
 --
--- 장바구니_고객 분리 (2026-08-08 갱신 — 참고용 컬럼 추가에서 세그먼트 분리로
--- 확대. 근거: docs/methodology.md 2026-08-08 항목):
+-- 장바구니_고객 분리 (참고용 컬럼 추가에서 세그먼트 분리로 확대. 근거:
+-- docs/methodology.md 참고):
 -- 처음에는 cart_removal_subtype 참고용 컬럼만 추가했으나(no_removal_recorded/
 -- fast_removal/slow_removal), no_removal_recorded가 이 그룹의 79.38%(명시적
 -- 제거 이벤트가 전혀 없음 — 로깅 누락이 아니라 실측 확인: 96.5%가 remove
@@ -49,11 +49,9 @@
 -- 입력: mart_customer_lifecycle, mart_customer_360, stg_search_query, stg_page_visit,
 --       int_customer_cart_behavior
 -- 출력: Phase 7 대시보드 Segment Explorer
--- (2026-08-08 정정: 이전 주석은 "Phase 6 모델 feature/baseline rule로도
--- 사용"이라고 적혀 있었으나 사실이 아니었다 — src/models/baselines.py의
--- 모든 baseline 함수는 days_since_last_purchase 등 원시 컬럼만 쓰고
--- mart_customer_segment를 참조하지 않는다. 실제로 구현하지 않은 계획을
--- 사실처럼 적어둔 문서 부채였다.)
+-- 참고: mart_customer_segment는 Phase 6 모델 feature나 baseline rule로
+-- 쓰이지 않는다 — src/models/baselines.py의 모든 baseline 함수는
+-- days_since_last_purchase 등 원시 컬럼만 사용하고 이 마트를 참조하지 않는다.
 CREATE OR REPLACE TABLE mart_customer_segment AS
 WITH first_search AS (
     SELECT client_id, MIN(event_ts) AS first_search_ts

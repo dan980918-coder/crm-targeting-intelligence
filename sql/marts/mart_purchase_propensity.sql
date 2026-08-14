@@ -9,13 +9,13 @@
 --
 -- 모집단 정의("활동 고객"의 데이터 기반 해석): snapshot_date 이전 누적
 -- 기준으로 (a) 방문 10회 이상 (Phase 4 세그먼트에서 이미 사용한 p90 기준과
--- 동일선상) 또는 (b) search_first(검색이 방문보다 먼저 발생 — 2026-08-08
--- 갱신, 아래 설명) 또는 (c) 장바구니 추가 이력 또는 (d) 구매 이력. 순수
+-- 동일선상) 또는 (b) search_first(검색이 방문보다 먼저 발생, 아래
+-- 설명) 또는 (c) 장바구니 추가 이력 또는 (d) 구매 이력. 순수
 -- 1~2회성 방문자(전체의 76.89%, 저관여_탐색형)는 제외 — 전환 가능성이
 -- 사실상 0에 가까운 트래픽을 propensity 모델링에 포함하지 않는 것은
 -- 실무에서도 흔한 관행이며, 계산 비용도 크게 줄인다.
 --
--- (b) search_first 조건 (2026-08-08 갱신, docs/methodology.md 참고): 원래는
+-- (b) search_first 조건 (docs/methodology.md 참고): 원래는
 -- "검색 1회 이상"이었으나, mart_customer_segment.sql의 구매_직전_탐색형
 -- 분류에서 이미 이 기준이 저의도(search_only, 실제 전환율 7.75%)와
 -- 고의도(search_first, 44.02%) 신호를 구분 못 한다는 게 확인돼 교체됐다.
@@ -30,7 +30,7 @@
 -- (같은 날 검색과 방문이 모두 있으면 daily 집계로는 순서를 알 수 없음)
 -- 이 부분만 stg_search_query/stg_page_visit 원본을 별도로 스캔한다.
 --
--- avg_category_repurchase_rate (2026-08-08 추가): mart_customer_snapshot과
+-- avg_category_repurchase_rate: mart_customer_snapshot과
 -- 동일한 lookup(int_customer_category_repurchase_avg_by_snapshot)을 재사용.
 -- 구매 이력이 없는 후보 고객(방문/검색/장바구니만 있는 경우)은 정의상
 -- NULL — "정보 없음"과 "재구매 안 함(0)"을 구분해야 하므로 0으로 대체하지 않음.

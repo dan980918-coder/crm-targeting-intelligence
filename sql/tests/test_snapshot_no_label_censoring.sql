@@ -1,5 +1,5 @@
 -- PROJECT_GUIDELINES.md 31번 "Snapshot Feature·Label 분리" 테스트
--- docs/methodology.md 2026-08-05 "우측 검열 고객 처리 방침" 결정의 안전장치.
+-- docs/methodology.md의 "우측 검열 고객 처리 방침" 결정에 대한 안전장치.
 -- 이 쿼리는 위반 행을 반환한다 — 결과가 0행이면 통과.
 -- (자동화된 assert는 tests/data_quality/test_snapshot.py::test_no_label_window_censoring 참고)
 
