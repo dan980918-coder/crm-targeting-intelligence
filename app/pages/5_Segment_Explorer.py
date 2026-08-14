@@ -14,7 +14,8 @@ st.title("Segment Explorer")
 show_data_period_notice()
 
 st.caption(
-    "규칙 기반 세그먼트 9개입니다 (PROJECT_GUIDELINES.md 17번 — 군집분석은 사용하지 않음, "
+    "규칙 기반 세그먼트 9개입니다 (PROJECT_GUIDELINES.md 17번 원칙에 따라 규칙 기반으로 "
+    "구축 — 군집분석은 이 프로젝트에서 시도하지 않았다, "
     "`docs/data_dictionary.md` mart_customer_segment 참고)."
 )
 

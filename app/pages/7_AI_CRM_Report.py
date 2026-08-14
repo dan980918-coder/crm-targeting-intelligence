@@ -33,7 +33,7 @@ output = generate_crm_report(report_input)
 
 st.caption(f"생성 방식: {output.generated_by} | 기간: {output.period_start} ~ {output.period_end}")
 
-# 우선순위 배지 — LLM이 우선순위를 판단하지 않고(PROJECT_GUIDELINES.md 12번), segment_facts에
+# 우선순위 배지 — LLM이 우선순위를 판단하지 않고(PROJECT_GUIDELINES.md 27번), segment_facts에
 # 실제로 들어있는 priority 값(SQL에서 이미 확정된 값)을 근거로 Python이 매핑한다.
 # build_report_input()이 애초에 "높음" 이상 세그먼트만 골라 LLM에 전달하므로
 # (data_loader.py HIGH_PRIORITY_LABELS), "중간/낮음" 배지는 이 리포트에 나타나지

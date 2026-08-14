@@ -1,9 +1,9 @@
 feature,importance
-has_purchase_history,583554.9120445251
-n_purchase_occasions_so_far,407816.37617635727
-days_since_last_purchase,328034.7079281807
-n_page_visit_28d,168854.43965005875
-n_search_query_28d,157636.93914222717
-n_add_to_cart_28d,39327.285299777985
-n_remove_from_cart_28d,30008.353736400604
-avg_category_repurchase_rate,10136.10886144638
+has_purchase_history,583411.583732605
+n_purchase_occasions_so_far,408361.5872139931
+days_since_last_purchase,328021.7658009529
+n_page_visit_28d,168168.6387810707
+n_search_query_28d,157469.68304634094
+n_add_to_cart_28d,40990.465415000916
+n_remove_from_cart_28d,29563.52764415741
+avg_category_repurchase_rate,10297.526223659515

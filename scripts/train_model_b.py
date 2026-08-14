@@ -5,6 +5,12 @@ mart_purchase_propensity 사용 — Model A(mart_churn_target)보다 넓은 모�
 Model A와 반대로 Lift@K가 더 유의미하게 나올 것으로 기대(보고서에서 비교).
 
 시간순 분할은 Model A와 동일한 snapshot_date 기준(Train 6/Val 1/Test 2).
+
+학습·평가 공통 로직은 src/models/train_pipeline.py에 있다 — 이 파일은 Model B
+고유의 설정값(FEATURE_COLS, 기준선, 결측 처리 방식)만 정의하는 얇은 wrapper다.
+TRAIN_SNAPSHOTS/VAL_SNAPSHOTS/TEST_SNAPSHOTS/split_data는 tests/unit/test_model_split.py,
+scripts/build_targeting_simulation.py, scripts/generate_figures.py가 이 모듈에서
+직접 import하므로 공통 모듈의 정의를 그대로 re-export한다.
 """
 
 from __future__ import annotations
@@ -12,30 +18,20 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import duckdb
-import lightgbm as lgb
-import numpy as np
-import pandas as pd
-import yaml
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.models.baselines import (
     frequency_propensity_score,
-    overall_rate_score,
-    random_score,
     recency_propensity_score,
     visit_propensity_score,
 )
-from src.models.metrics import full_evaluation
-
-CONFIG_PATH = Path("config/paths.yaml")
-REPORT_DIR = Path("reports")
-
-TRAIN_SNAPSHOTS = ["2022-07-21", "2022-08-04", "2022-08-18", "2022-09-01", "2022-09-15", "2022-09-29"]
-VAL_SNAPSHOTS = ["2022-10-13"]
-TEST_SNAPSHOTS = ["2022-10-27", "2022-11-10"]
+from src.models.train_pipeline import (
+    TEST_SNAPSHOTS,
+    TRAIN_SNAPSHOTS,
+    VAL_SNAPSHOTS,
+    ModelSpec,
+    run,
+    split_data,
+)
 
 FEATURE_COLS = [
     "has_purchase_history",
@@ -48,124 +44,25 @@ FEATURE_COLS = [
     "n_remove_from_cart_28d",
 ]
 
-
-def split_data(df: pd.DataFrame):
-    df = df.copy()
-    df["snapshot_date_str"] = df["snapshot_date"].astype(str)
-    train = df[df["snapshot_date_str"].isin(TRAIN_SNAPSHOTS)]
-    val = df[df["snapshot_date_str"].isin(VAL_SNAPSHOTS)]
-    test = df[df["snapshot_date_str"].isin(TEST_SNAPSHOTS)]
-    assert len(train) + len(val) + len(test) == len(df)
-    return train, val, test
-
-
-def prepare_lr_features(train, val, test):
-    recency_median = train["days_since_last_purchase"].median()
-    cat_rate_median = train["avg_category_repurchase_rate"].median()
-
-    def transform(d):
-        d = d.copy()
-        d["has_purchase_history"] = d["has_purchase_history"].astype(int)
-        d["days_since_last_purchase"] = d["days_since_last_purchase"].fillna(recency_median)
-        d["avg_category_repurchase_rate_missing"] = d["avg_category_repurchase_rate"].isna().astype(int)
-        d["avg_category_repurchase_rate"] = d["avg_category_repurchase_rate"].fillna(cat_rate_median)
-        return d
-
-    train_t, val_t, test_t = transform(train), transform(val), transform(test)
-    cols = FEATURE_COLS + ["avg_category_repurchase_rate_missing"]
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(train_t[cols])
-    X_val = scaler.transform(val_t[cols])
-    X_test = scaler.transform(test_t[cols])
-    return X_train, X_val, X_test
-
-
-def run_for_label(df: pd.DataFrame, label_col: str):
-    train, val, test = split_data(df)
-    y_train = train[label_col].values
-    y_val = val[label_col].values
-    y_test = test[label_col].values
-    train_rate = y_train.mean()
-
-    results = []
-
-    def record(method, split_name, y_true, y_score):
-        m = full_evaluation(y_true, y_score)
-        m["method"] = method
-        m["split"] = split_name
-        m["label"] = label_col
-        results.append(m)
-
-    for split_name, d, y in [("val", val, y_val), ("test", test, y_test)]:
-        record("무작위", split_name, y, random_score(len(y)))
-        record("전체_평균", split_name, y, overall_rate_score(len(y), train_rate))
-        record("최근성_규칙", split_name, y, recency_propensity_score(d["days_since_last_purchase"], d["has_purchase_history"]))
-        record("구매빈도_규칙", split_name, y, frequency_propensity_score(d["n_purchase_occasions_so_far"]))
-        record("방문검색_규칙", split_name, y, visit_propensity_score(d["n_page_visit_28d"], d["n_search_query_28d"]))
-
-    X_train, X_val, X_test = prepare_lr_features(train, val, test)
-    lr = LogisticRegression(max_iter=1000)
-    lr.fit(X_train, y_train)
-    record("로지스틱_회귀", "val", y_val, lr.predict_proba(X_val)[:, 1])
-    record("로지스틱_회귀", "test", y_test, lr.predict_proba(X_test)[:, 1])
-
-    train_feat = train[FEATURE_COLS].copy()
-    val_feat = val[FEATURE_COLS].copy()
-    test_feat = test[FEATURE_COLS].copy()
-    for d in (train_feat, val_feat, test_feat):
-        d["has_purchase_history"] = d["has_purchase_history"].astype(int)
-
-    train_ds = lgb.Dataset(train_feat, label=y_train)
-    val_ds = lgb.Dataset(val_feat, label=y_val, reference=train_ds)
-    gbm = lgb.train(
-        params={"objective": "binary", "metric": "auc", "verbosity": -1, "seed": 42},
-        train_set=train_ds,
-        num_boost_round=500,
-        valid_sets=[val_ds],
-        callbacks=[lgb.early_stopping(30, verbose=False)],
-    )
-    record("LightGBM", "val", y_val, gbm.predict(val_feat))
-    record("LightGBM", "test", y_test, gbm.predict(test_feat))
-
-    return results, gbm
+SPEC = ModelSpec(
+    mart_table="mart_purchase_propensity",
+    feature_cols=FEATURE_COLS,
+    label_cols=["will_purchase_14d", "will_purchase_28d"],
+    output_prefix="phase6_model_b",
+    baselines=[
+        ("최근성_규칙", lambda d: recency_propensity_score(d["days_since_last_purchase"], d["has_purchase_history"])),
+        ("구매빈도_규칙", lambda d: frequency_propensity_score(d["n_purchase_occasions_so_far"])),
+        ("방문검색_규칙", lambda d: visit_propensity_score(d["n_page_visit_28d"], d["n_search_query_28d"])),
+    ],
+    lr_impute_with_flag_cols=["avg_category_repurchase_rate"],
+    lr_impute_no_flag_cols=["days_since_last_purchase"],
+    lr_passthrough_cols=["has_purchase_history"],
+    lgb_cast_int_cols=["has_purchase_history"],
+)
 
 
 def main():
-    with open(CONFIG_PATH) as f:
-        paths = yaml.safe_load(f)
-    con = duckdb.connect(str(paths["database_path"]), read_only=True)
-    df = con.sql("SELECT * FROM mart_purchase_propensity").df()
-    print(f"전체 행 수: {len(df):,}")
-
-    all_results = []
-    for label_col in ["will_purchase_14d", "will_purchase_28d"]:
-        print(f"\n{'=' * 80}\n{label_col}\n{'=' * 80}")
-        results, gbm = run_for_label(df, label_col)
-        all_results.extend(results)
-        for r in results:
-            print(
-                f"[{r['split']}] {r['method']:14s} AUC={r['roc_auc']:.4f} "
-                f"PR-AUC={r['pr_auc']:.4f} Lift@10%={r['lift_at_10pct']:.2f} "
-                f"Precision@10%={r['precision_at_10pct']:.4f} Recall@10%={r['recall_at_10pct']:.4f}"
-            )
-        if label_col == "will_purchase_14d":
-            importances = pd.DataFrame(
-                {"feature": FEATURE_COLS, "importance": gbm.feature_importance(importance_type="gain")}
-            ).sort_values("importance", ascending=False)
-            print("\nLightGBM feature importance (gain):")
-            print(importances.to_string(index=False))
-            importances.to_csv(REPORT_DIR / "phase6_model_b_feature_importance.csv", index=False)
-
-    result_df = pd.DataFrame(all_results)
-    ordered_cols = ["label", "split", "method", "n", "actual_positive_rate", "roc_auc", "pr_auc",
-                     "log_loss", "brier_score",
-                     "precision_at_5pct", "recall_at_5pct", "lift_at_5pct",
-                     "precision_at_10pct", "recall_at_10pct", "lift_at_10pct",
-                     "precision_at_20pct", "recall_at_20pct", "lift_at_20pct"]
-    result_df = result_df[ordered_cols]
-    REPORT_DIR.mkdir(exist_ok=True)
-    result_df.to_csv(REPORT_DIR / "phase6_model_b_results.csv", index=False)
-    print(f"\nSaved: {REPORT_DIR / 'phase6_model_b_results.csv'}")
+    run(SPEC)
 
 
 if __name__ == "__main__":
