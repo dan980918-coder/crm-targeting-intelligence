@@ -4,7 +4,7 @@
 
 ### 프로젝트명
 
-**Predicting Churn & Purchase Intent for CRM Targeting**
+**이커머스 고객 행동 퍼널 분석 및 CRM 타기팅 전략 설계** (Predicting Churn & Purchase Intent for CRM Targeting)
 
 ### 프로젝트 목적
 

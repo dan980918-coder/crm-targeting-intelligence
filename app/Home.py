@@ -7,10 +7,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.dashboard.data import show_data_period_notice
 from src.dashboard.theme import inject_global_css
 
-st.set_page_config(page_title="Churn & Purchase Intent Prediction", page_icon="📊", layout="wide")
+st.set_page_config(page_title="이커머스 CRM 타기팅 분석", page_icon="📊", layout="wide")
 inject_global_css()
 
-st.title("Predicting Churn & Purchase Intent for CRM Targeting")
+st.title("이커머스 고객 행동 퍼널 분석 및 CRM 타기팅 전략 설계")
 
 st.markdown(
     """
