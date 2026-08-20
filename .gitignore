@@ -15,6 +15,10 @@ data/external/
 /models/
 /artifacts/
 
+# 고객 단위 원본 산출물 (수백만 행, 재실행으로 재생성 가능 — reports/의 다른
+# 집계 CSV/md와 달리 git에 올릴 크기가 아님)
+reports/phase8_experiment_assignment.csv
+
 # Python
 __pycache__/
 *.pyc
